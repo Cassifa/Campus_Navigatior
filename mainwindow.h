@@ -23,11 +23,13 @@ private:
     QAction *addTool;
     QVector<CampusMap*> *maps;
     void initMenu();
-    //切换到0:查询 1:修改
+    //修改当前是导航还是编辑的状态 切换到0:查询 1:修改
     void changeView(int aim);
     //添加地图
     void addMap();
-    //使用信息初始化为一个地图类
-//    void initThisMap(QString path);
+    //切换地图
+    void choiceMap(int id);
+    //绘制校徽
+    void drawBadge();
 };
 #endif // MAINWINDOW_H

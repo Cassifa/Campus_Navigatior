@@ -217,23 +217,9 @@
     <property name="title">
      <string>切换地图</string>
     </property>
-    <addaction name="action111_2"/>
    </widget>
    <addaction name="menu"/>
   </widget>
-  <action name="action111">
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>111</string>
-   </property>
-  </action>
-  <action name="action111_2">
-   <property name="text">
-    <string>111</string>
-   </property>
-  </action>
  </widget>
  <resources/>
  <connections/>

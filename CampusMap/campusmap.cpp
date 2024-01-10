@@ -22,7 +22,6 @@ CampusMap::~CampusMap(){
      [end]
 */
 CampusMap* CampusMap::addMap(QString path){
-    qDebug()<<path<<endl;
     CampusMap *nowMap=new CampusMap();
     QFile file(path);
     if(file.open(QIODevice::ReadOnly|QIODevice::Text)){
@@ -30,7 +29,9 @@ CampusMap* CampusMap::addMap(QString path){
         QTextStream in(&file);
         in.setCodec("UTF-8");
         in.skipWhiteSpace();
+
         //读取存档
+        //存地图名称
         in>>nowMap->name;
         //读取点
         while(!in.atEnd()){
@@ -52,12 +53,11 @@ CampusMap* CampusMap::addMap(QString path){
 
         //展示存储效果
         qDebug()<<"地图名"<<nowMap->name<<endl;
-        qDebug()<<"点：\n";
+        qDebug()<<"点：";
         for(int i=0;i<nowMap->points->size();i++)
                nowMap->points->at(i)->showInfo();
         for(int i=0;i<nowMap->edges->size();i++)
             qDebug()<<nowMap->edges->at(i)->x<<nowMap->edges->at(i)->y;
-
 
         file.close();
     }
@@ -66,4 +66,12 @@ CampusMap* CampusMap::addMap(QString path){
 
 QString CampusMap::getName(){
     return name;
+}
+
+void CampusMap::setId(int id){
+    this->id=id;
+}
+
+int CampusMap::getId(){
+    return id;
 }

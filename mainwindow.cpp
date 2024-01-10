@@ -4,9 +4,8 @@
 #include<QDir>
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
+    //初始化顶部工具并加载所有存档
     initMenu();
-
-//    connect(ui->menu_2,&Menu::hungury,student,&Student::treat);
 
     //点击导航功能
     connect(navtionTool,&QAction::triggered,this,[&](){
@@ -32,24 +31,26 @@ void MainWindow::initMenu(){
     menuBar()->addAction(addTool);
 
     //加载所有存档
+    this->maps=new QVector<CampusMap*>;
     QString path=QCoreApplication::applicationDirPath()+"/src/maps";
     path="D:/0projects/CampusNavigatior/src/maps";
     QDir dir(path);
-    if(!dir.exists()){
-        qDebug()<<path<<endl;
-        qDebug()<<"没有\n";
-        dir.mkdir(path);}
+    if(!dir.exists()) dir.mkdir(path);
     QStringList list=dir.entryList();
-    for(int i=0;i<list.count();i++)
-        initThisMap(list[i]);
+    for(int i=0;i<list.count();i++){
+        if(list[i]=="."||list[i]=="..")continue;
+        CampusMap obj;
+        maps->push_back(obj.addMap(path+"/"+list[i]));
+    }
+
+    //将存档添加到菜单
 
     qDebug()<<"执行完成"<<endl;
 }
 
 void MainWindow::changeView(int aim){
     qDebug()<<aim;
-//    ui->inputArea->setCurrentIndex(aim);
-
+    ui->stackedWidget->setCurrentIndex(aim);
 }
 
 void MainWindow::addMap(){
@@ -57,7 +58,10 @@ void MainWindow::addMap(){
 }
 
 
+
+
 MainWindow::~MainWindow(){
     delete ui;
+    delete maps;
 }
 

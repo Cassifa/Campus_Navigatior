@@ -13,5 +13,5 @@ Point::Point(int x,int y,int id,QString name,bool isHide){
 void Point::showInfo(){
     qDebug()<<"名称："<<name;
     qDebug()<<x<<" "<<y;
-    qDebug()<<id<<"是否隐藏："<<!isHide;
+    qDebug()<<id<<"是否隐藏："<<isHide;
 }

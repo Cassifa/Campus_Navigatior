@@ -33,7 +33,7 @@ CampusMap* CampusMap::addMap(QString path){
         //读取存档
         in>>nowMap->name;
         //读取点
-        while(true){
+        while(!in.atEnd()){
             int a,b;
             in>>a>>b;
             if(a==-1)break;
@@ -46,6 +46,7 @@ CampusMap* CampusMap::addMap(QString path){
         while (!in.atEnd()) {
             int a,b;
             in>>a>>b;
+            if(a==-1)break;
             nowMap->edges->append(new Edge(a,b));
         }
 
@@ -55,10 +56,14 @@ CampusMap* CampusMap::addMap(QString path){
         for(int i=0;i<nowMap->points->size();i++)
                nowMap->points->at(i)->showInfo();
         for(int i=0;i<nowMap->edges->size();i++)
-            qDebug()<<nowMap->edges->at(i)->x<<" "<<nowMap->edges->at(i)->y<<endl;
+            qDebug()<<nowMap->edges->at(i)->x<<nowMap->edges->at(i)->y;
 
 
         file.close();
     }
     return nowMap;
+}
+
+QString CampusMap::getName(){
+    return name;
 }

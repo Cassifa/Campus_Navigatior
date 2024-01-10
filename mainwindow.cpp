@@ -44,7 +44,8 @@ void MainWindow::initMenu(){
     }
 
     //将存档添加到菜单
-
+    for(int i=0;i<maps->size();i++)
+        ui->menu->addAction(new QAction(maps->at(i)->getName()));
     qDebug()<<"执行完成"<<endl;
 }
 

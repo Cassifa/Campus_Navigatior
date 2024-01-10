@@ -18,6 +18,7 @@ public:
         return id < other.id;
     }
     static CampusMap* addMap(QString path);
+    QString getName();
 private:
     //地图编号
     int id=0;

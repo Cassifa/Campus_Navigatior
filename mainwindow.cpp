@@ -69,6 +69,7 @@ void MainWindow::initMenu(){
 void MainWindow::changeView(int aim){
     qDebug()<<aim;
     ui->stackedWidget->setCurrentIndex(aim);
+    ui->stackedWidget_2->setCurrentIndex(aim);
 }
 
 void MainWindow::addMap(){

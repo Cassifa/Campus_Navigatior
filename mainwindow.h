@@ -109,6 +109,11 @@ private:
     //删除一个点并取消绘制
     void cleanPoints(int id);
 
+    //进入导航页面
+    void switchToNav();
+    //进入编辑页面
+    void switchEdit();
+
 
 };
 #endif // MAINWINDOW_H

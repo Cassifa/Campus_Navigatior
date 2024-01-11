@@ -89,11 +89,11 @@ void MainWindow::initScence(){
 
 //修改当前是导航还是编辑的状态
 void MainWindow::changeView(int aim){
-    ui->stackedWidget->setCurrentIndex(aim);
-    ui->stackedWidget_2->setCurrentIndex(aim);
-    if(aim==0)this->modifyingOptions=NotModifying;
+    if(aim==0) switchToNav();
+    else switchEdit();
 }
 
+//添加一张地图
 void MainWindow::addMap(){
     qDebug()<<"添加地图";
 }
@@ -129,7 +129,7 @@ void MainWindow::drawBadge(){
     ui->graphicsView->show();
 }
 
-//加载地图
+//加载地图：删除原有内容并展示边与一类点
 void MainWindow::loadMap(int id){
     //删除原有点
     for(int i=0;i<points1.size();i++)
@@ -143,8 +143,7 @@ void MainWindow::loadMap(int id){
     QVector<Point*> points=*this->maps->at(id)->getPointsList();
     for(const Point *now:points){
         Point nowPoint=*now;
-        if(nowPoint.isHide)addPoint2(nowPoint);
-        else addPoint1(nowPoint);
+        if(!nowPoint.isHide)addPoint1(nowPoint);
     }
 }
 
@@ -178,6 +177,32 @@ void MainWindow::cleanPoints(int id){
             delete now;
             return;
         }
+    }
+}
+
+//进入导航页面 重新加载地图
+void MainWindow::switchToNav(){//usingMap
+    //切换页面
+    ui->stackedWidget->setCurrentIndex(0);
+    ui->stackedWidget_2->setCurrentIndex(0);
+    //加载地图
+    loadMap(this->usingMap);
+    //重置修改栏状态
+    this->modifyingOptions=NotModifying;
+}
+
+//进入编辑页面 显示二类点
+void MainWindow::switchEdit(){
+    //切换到修改页面
+    ui->stackedWidget->setCurrentIndex(1);
+    ui->stackedWidget_2->setCurrentIndex(1);
+    //重置修改栏状态
+    this->modifyingOptions=NotModifying;
+    //显示二类点
+    QVector<Point*> points=*this->maps->at(usingMap)->getPointsList();
+    for(const Point *now:points){
+        Point nowPoint=*now;
+        if(nowPoint.isHide)addPoint2(nowPoint);
     }
 }
 

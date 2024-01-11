@@ -3,11 +3,11 @@
 #include<QtCore>
 class Point{
 public:
-    Point(int x,int y,int id,QString name,bool isHide);
+    Point(qreal x,qreal y,int id,bool isHide,QString name=nullptr);
     //节点标号，两种点都有
     int id;
     //坐标
-    int x,y;
+    qreal x,y;
     //是否隐藏：中间点在导航时不显示
     bool isHide;
     //节点名字

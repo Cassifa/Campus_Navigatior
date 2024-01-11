@@ -1,7 +1,7 @@
 #include "point.h"
 #include<QtCore>
 #include<QDebug>
-Point::Point(int x,int y,int id,QString name,bool isHide){
+Point::Point(qreal x,qreal y,int id,bool isHide,QString name){
     this->x=x;
     this->y=y;
     this->name=name;

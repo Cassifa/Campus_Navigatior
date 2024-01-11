@@ -18,9 +18,12 @@ public:
         return id < other.id;
     }
     static CampusMap* addMap(QString path);
+    static void saveMap(QString path);
     QString getName();
     void setId(int id);
     int getId();
+    QVector<Point*>* getPointsList();
+    QVector<Edge*>* getEdgesList();
 private:
     //地图编号
     int id=0;

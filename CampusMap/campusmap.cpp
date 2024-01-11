@@ -10,11 +10,16 @@ CampusMap::CampusMap(){
     this->edges=new QVector<Edge*>;
 }
 CampusMap::~CampusMap(){
+    for(int i=0;i<points->size();i++)
+        delete points->at(i);
+    for(int i=0;i<edges->size();i++)
+        delete edges->at(i);
     delete points;
     delete edges;
 }
 
-/*一张地图存档格式：
+/*加载一张地图
+ * 一张地图存档格式：
      名字
      x y(点位置) 节点编号 名称 是否隐藏(是否是辅助节点)
      -1 -1
@@ -39,8 +44,13 @@ CampusMap* CampusMap::addMap(QString path){
             in>>a>>b;
             if(a==-1)break;
             int id;QString name; int hide;
-            in>>id>>name>>hide;
-            nowMap->points->push_back(new Point(a,b,id,name,hide));
+            in>>id>>hide;
+            if(hide)
+                nowMap->points->push_back(new Point(a,b,id,hide));
+            else{
+                in>>name;
+                nowMap->points->push_back(new Point(a,b,id,hide,name));
+            }
 
         }
         //读取边
@@ -64,6 +74,18 @@ CampusMap* CampusMap::addMap(QString path){
     return nowMap;
 }
 
+/*将当前信息保存
+ * 一张地图存档格式：
+     名字
+     x y(点位置) 节点编号 名称 是否隐藏(是否是辅助节点)
+     -1 -1
+     x y 边
+     [end]
+*/
+void CampusMap::saveMap(QString path){
+
+}
+
 QString CampusMap::getName(){
     return name;
 }
@@ -74,4 +96,12 @@ void CampusMap::setId(int id){
 
 int CampusMap::getId(){
     return id;
+}
+
+QVector<Point *> *CampusMap::getPointsList(){
+    return this->points;
+}
+
+QVector<Edge *> *CampusMap::getEdgesList(){
+    return this->edges;
 }

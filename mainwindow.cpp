@@ -3,12 +3,15 @@
 #include<QDebug>
 #include<QDir>
 #include<QGraphicsPixmapItem>
+#include"./DrawingItems/drawingpoint.h"
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
     //初始化顶部选项:加载存档和功能栏目并绑定点击事件
     initMenu();
+    //加载校徽
     drawBadge();
-
+    //初始化mapScene
+    initScence();
 }
 
 //初始化顶部选项:加载存档和功能栏目并绑定点击事件
@@ -65,9 +68,27 @@ void MainWindow::initMenu(){
     qDebug()<<"执行完成"<<endl;
 }
 
+//初始化mapScence
+void MainWindow::initScence(){
+    auto graphicsView=this->ui->mapGraphicsView;
+    graphicsView->setGeometry(0, 0, graphicsView->width(), graphicsView->height());
+    QSize viewSize = ui->mapGraphicsView->size();
+    mapScene=new QGraphicsScene(0,0,viewSize.width(),viewSize.height(),this);
+    // 设置视图的中心为场景的中心
+    graphicsView->setScene(mapScene);
+    graphicsView->setSceneRect(mapScene->sceneRect());
+    // 禁用滚动条
+    graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    // 禁用抗锯齿
+//    ui->mapGraphicsView->setRenderHint(QPainter::Antialiasing, false);
+    //加载0号地图
+    loadMap(0);
+    graphicsView->show();
+}
+
 //修改当前是导航还是编辑的状态
 void MainWindow::changeView(int aim){
-    qDebug()<<aim;
     ui->stackedWidget->setCurrentIndex(aim);
     ui->stackedWidget_2->setCurrentIndex(aim);
 }
@@ -81,9 +102,12 @@ void MainWindow::choiceMap(int id){
     qDebug()<<"点击了存档";
     qDebug()<<"切换到了id为"<<id<<"的存档";
     qDebug()<<"名称为："<<maps->at(id)->getName();
+    this->loadMap(id);
 }
 
+//画校徽
 void MainWindow::drawBadge(){
+    ui->graphicsView->setGeometry(0,800,ui->graphicsView->width(),ui->graphicsView->height());
     // 创建场景
     QGraphicsScene *scene = new QGraphicsScene(this);
     // 添加背景图像
@@ -104,11 +128,64 @@ void MainWindow::drawBadge(){
     ui->graphicsView->show();
 }
 
+//加载地图
+void MainWindow::loadMap(int id){
+    //删除原有点
+    for(int i=0;i<points1.size();i++)
+        cleanPoints(points1[i]->getId());
+    points1.resize(0);
+    for(int i=0;i<points2.size();i++)
+        cleanPoints(points2[i]->getId());
+    points2.resize(0);
 
+    //绘制新点
+    QVector<Point*> points=*this->maps->at(id)->getPointsList();
+    for(const Point *now:points){
+        Point nowPoint=*now;
+        if(nowPoint.isHide)addPoint2(nowPoint);
+        else addPoint1(nowPoint);
+    }
+}
 
+//将一个点添加到points1并绘制
+void MainWindow::addPoint1(Point &point){
+    DrawingPoint *nowPoint=new DrawingPoint(point,30,QColor(Qt::red).lighter(150));
+    this->points1.append(nowPoint);
+    this->mapScene->addItem(nowPoint);
+}
+//将一个点添加到points2并绘制
+void MainWindow::addPoint2(Point &point){
+    DrawingPoint *nowPoint=new DrawingPoint(point,10,QColor(Qt::blue).lighter(150));
+    this->points2.append(nowPoint);
+    this->mapScene->addItem(nowPoint);
+}
+
+//取消绘制点并从Vector<point>中删除
+void MainWindow::cleanPoints(int id){
+    for(int i=0;i<points1.size();i++){
+        auto now=points1[i];
+        if(now->getId()==id){
+            this->mapScene->removeItem(now);
+            delete now;
+            return;
+        }
+    }
+    for(int i=0;i<points2.size();i++){
+        auto now=points2[i];
+        if(now->getId()==id){
+            this->mapScene->removeItem(now);
+            delete now;
+            return;
+        }
+    }
+}
 
 MainWindow::~MainWindow(){
     delete ui;
     delete maps;
+    for(int i=0;i<points1.size();i++)
+         delete points1[i];
+    for(int i=0;i<points2.size();i++)
+         delete points2[i];
 }
 

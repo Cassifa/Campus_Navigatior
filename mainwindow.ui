@@ -82,6 +82,28 @@
          <property name="title">
           <string/>
          </property>
+         <widget class="QGraphicsView" name="mapGraphicsView">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>10</y>
+            <width>1200</width>
+            <height>800</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>1200</width>
+            <height>800</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>1200</width>
+            <height>800</height>
+           </size>
+          </property>
+         </widget>
         </widget>
        </item>
        <item>
@@ -954,7 +976,7 @@
                 </font>
                </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;啊阿斯顿撒法&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;朝晖 屏峰&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
@@ -1008,7 +1030,7 @@
                 </font>
                </property>
                <property name="text">
-                <string>最短路路</string>
+                <string>计算机楼 语林楼</string>
                </property>
               </widget>
              </item>

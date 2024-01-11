@@ -12,6 +12,8 @@ SOURCES += \
     CampusMap/campusmap.cpp \
     CampusMap/edge.cpp \
     CampusMap/point.cpp \
+    DrawingItems/drawingedge.cpp \
+    DrawingItems/drawingpoint.cpp \
     main.cpp \
     mainwindow.cpp
 
@@ -19,6 +21,8 @@ HEADERS += \
     CampusMap/campusmap.h \
     CampusMap/edge.h \
     CampusMap/point.h \
+    DrawingItems/drawingedge.h \
+    DrawingItems/drawingpoint.h \
     mainwindow.h
 
 FORMS += \

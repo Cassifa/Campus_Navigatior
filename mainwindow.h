@@ -8,6 +8,12 @@
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
+enum SearchAlgorithm{
+    BFS,AStar,Heap,Dijkstra,SPFA,Gene,Floyd,Unchoice
+};
+enum ModifyingOptions{
+    AddBuilding,AddNode,RemoveNode,AddPath,RemovePath,SaveChange,NotModifying
+};
 
 class MainWindow : public QMainWindow
 {
@@ -17,12 +23,55 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void on_heap_clicked();
+
+    void on_aStar_clicked();
+
+    void on_dijkstra_clicked();
+
+    void on_bfs_clicked();
+
+    void on_spfa_clicked();
+
+    void on_gene_clicked();
+
+    void on_floyd_clicked();
+
+    void on_checkBox_stateChanged(int arg1);
+
+    void on_checkBox_2_stateChanged(int arg1);
+
+    void on_pushButton_clicked();
+
+    void on_pushButton_2_clicked();
+
+    void on_addBuilding_clicked();
+
+    void on_addNode_clicked();
+
+    void on_removeNode_clicked();
+
+    void on_addPath_clicked();
+
+    void on_removePath_clicked();
+
+    void on_saveChange_clicked();
+
 private:
     Ui::MainWindow *ui;
+    //当前使用的算法,枚举
+    SearchAlgorithm nowUsingAlgorithm=Unchoice;
+    //修改地图时选择的功能
+    ModifyingOptions modifyingOptions=NotModifying;
     //当前使用功能 0:导航 1:编辑
     int nowView=0;
     //当前使用地图的编号
     int usingMap=0;
+    //是否要展示搜索过程
+    bool needShowPath=false;
+    //是否自动下一步
+    bool autoNext=false;
     //当前地图
     QVector<CampusMap*> *maps;
     //当前需要绘制的边

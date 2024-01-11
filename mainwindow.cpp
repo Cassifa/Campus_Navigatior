@@ -91,6 +91,7 @@ void MainWindow::initScence(){
 void MainWindow::changeView(int aim){
     ui->stackedWidget->setCurrentIndex(aim);
     ui->stackedWidget_2->setCurrentIndex(aim);
+    if(aim==0)this->modifyingOptions=NotModifying;
 }
 
 void MainWindow::addMap(){
@@ -187,5 +188,65 @@ MainWindow::~MainWindow(){
          delete points1[i];
     for(int i=0;i<points2.size();i++)
          delete points2[i];
+}
+
+
+//改变选择算法
+void MainWindow::on_heap_clicked(){
+    this->nowUsingAlgorithm=BFS;
+}
+void MainWindow::on_aStar_clicked(){
+    this->nowUsingAlgorithm=AStar;
+}
+void MainWindow::on_dijkstra_clicked(){
+    this->nowUsingAlgorithm=Dijkstra;
+}
+void MainWindow::on_bfs_clicked(){
+    this->nowUsingAlgorithm=BFS;
+}
+void MainWindow::on_spfa_clicked(){
+    this->nowUsingAlgorithm=SPFA;
+}
+void MainWindow::on_gene_clicked(){
+    this->nowUsingAlgorithm=Gene;
+}
+void MainWindow::on_floyd_clicked(){
+    this->nowUsingAlgorithm=Floyd;
+}
+
+//演示时选项参数
+void MainWindow::on_checkBox_stateChanged(int arg1){
+    if(arg1==Qt::Unchecked)this->needShowPath=false;
+    else needShowPath=true;
+}
+void MainWindow::on_checkBox_2_stateChanged(int arg1){
+    if(arg1==Qt::Unchecked)this->autoNext=false;
+    else autoNext=true;
+}
+void MainWindow::on_pushButton_clicked(){
+    qDebug()<<"要求下一步";
+}
+void MainWindow::on_pushButton_2_clicked(){
+    qDebug()<<"重置搜索过程";
+}
+
+//修改时选项
+void MainWindow::on_addBuilding_clicked(){
+    this->modifyingOptions=AddBuilding;
+}
+void MainWindow::on_addNode_clicked(){
+    this->modifyingOptions=AddNode;
+}
+void MainWindow::on_removeNode_clicked(){
+    this->modifyingOptions=RemoveNode;
+}
+void MainWindow::on_addPath_clicked(){
+    this->modifyingOptions=AddPath;
+}
+void MainWindow::on_removePath_clicked(){
+    this->modifyingOptions=RemovePath;
+}
+void MainWindow::on_saveChange_clicked(){
+    this->modifyingOptions=SaveChange;
 }
 

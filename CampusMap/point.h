@@ -16,7 +16,9 @@ public:
     //节点名字
     QString name;
     void showInfo();
-
+    bool operator==(const Point &other) const {
+        return id == other.id;
+    }
 
 };
 

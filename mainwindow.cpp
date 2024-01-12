@@ -6,6 +6,7 @@
 #include"./DrawingItems/drawingpoint.h"
 #include<QGraphicsView>
 #include<QGraphicsScene>
+
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
     //初始化顶部选项:加载存档和功能栏目并绑定点击事件
@@ -14,9 +15,6 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     drawBadge();
     //初始化mapScene
     initScence();
-//    this->ui->mapGraphicsView->
-    connect(mapScene,&QGraphicsScene::viewClicked, this, &MainWindow::mapGraphicsViewClicked);
-
 }
 
 //初始化顶部选项:加载存档和功能栏目并绑定点击事件
@@ -85,8 +83,12 @@ void MainWindow::initScence(){
     // 禁用滚动条
     graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    // 禁用抗锯齿
-//    ui->mapGraphicsView->setRenderHint(QPainter::Antialiasing, false);
+
+    //添加背景图
+    transparentItem=new MapBackground(0.0,0.0,qreal(mapScene->width()), qreal(mapScene->height()),QPixmap(),this);
+    mapScene->addItem(transparentItem);
+    connect(transparentItem, &MapBackground::itemClicked, this,&MainWindow::tryAddPoint);
+
     //加载0号地图
     loadMap(0);
     graphicsView->show();
@@ -166,12 +168,14 @@ void MainWindow::loadMap(int id){
 void MainWindow::addPoint1(Point &point){
     DrawingPoint *nowPoint=new DrawingPoint(point,20,QColor(Qt::red).lighter(150));
     this->points1.append(nowPoint);
+    nowPoint->setZValue(3);
     this->mapScene->addItem(nowPoint);
 }
 //将一个点添加到points2并绘制
 void MainWindow::addPoint2(Point &point){
     DrawingPoint *nowPoint=new DrawingPoint(point,8,QColor(Qt::blue).lighter(150));
     this->points2.append(nowPoint);
+    nowPoint->setZValue(3);
     this->mapScene->addItem(nowPoint);
 }
 
@@ -210,12 +214,14 @@ DrawingEdge* MainWindow::addEdge(Edge &edge,bool isRoad,int penWidth,QColor colo
         nowEdge=new DrawingEdge(edge,penWidth,color,false);
         this->roads.append(nowEdge);
         this->mapScene->addItem(nowEdge);
+        nowEdge->setZValue(1);
         return nullptr;
     }
     else {
         //创建搜索边
         nowEdge=new DrawingEdge(edge,penWidth,color,slowDrawing);
         this->mapScene->addItem(nowEdge);
+        nowEdge->setZValue(2);
         return nowEdge;
     }
 }
@@ -235,7 +241,6 @@ void MainWindow::cleanEdge(DrawingEdge *edge){
 }
 
 
-
 //进入导航页面 重新加载地图
 void MainWindow::switchToNav(){//usingMap
     //切换页面
@@ -245,6 +250,8 @@ void MainWindow::switchToNav(){//usingMap
     loadMap(this->usingMap);
     //重置修改栏状态
     this->modifyingOptions=NotModifying;
+    //加边时上次点到的点
+    lastAddPathStartPoint=nullptr;
 }
 
 //进入编辑页面 显示二类点
@@ -270,7 +277,118 @@ MainWindow::~MainWindow(){
     for(int i=0;i<points1.size();i++)
          delete points1[i];
     for(int i=0;i<points2.size();i++)
-         delete points2[i];
+        delete points2[i];
+}
+
+//加点
+void MainWindow::tryAddPoint(QGraphicsSceneMouseEvent *event){
+    qDebug()<<"加点";
+    if(nowView==0||(modifyingOptions!=AddNode&&modifyingOptions!=AddBuilding))return;
+    QPointF  pos=event->pos();
+    //加节点
+    if(modifyingOptions==AddNode){
+        //寻找合法id
+        QSet<int> st;
+        auto pointList=*this->maps->at(usingMap)->getPointsList();
+        for(Point* t:pointList)
+            st.insert(t->id);
+        Point *newPoint;
+        for(int i=0;;i++)
+            if(!st.contains(i)){
+                newPoint=new Point(pos.rx(),pos.ry(),i,true);
+                break;
+            }
+        //加到maps
+        this->maps->at(usingMap)->pushPoint(newPoint);
+        //绘制图像
+        addPoint2(*newPoint);
+    }
+    //加建筑
+    else{
+
+    }
+}
+
+//删边(路) 没id
+void MainWindow::removePoint(Edge edge){
+    qDebug()<<"删边";
+    if(nowView==0||modifyingOptions!=RemovePath)return;
+    auto list=this->maps->at(usingMap)->getEdgesList();
+    for(int i=0;i<list->size();i++){
+        //找出Maps中的边
+        if(list->at(i)->x.x==edge.x.x&&list->at(i)->y.x==edge.y.x&&list->at(i)->dist==edge.dist){
+            //从roads中去除
+            for(int i=0;i<roads.size();i++){
+                if(roads.at(i)==nullptr)continue;
+                auto x=list->at(i);auto y=roads.at(i);
+                if((x->dist==y->dist)&&(x->x.x=y->startX)&&(x->y.x==y->endX)){
+                    cleanEdge(y);
+                    delete y;
+                    y=nullptr;
+                }
+            }
+            //从maps中去除
+            list->remove(i);
+        }
+    }
+}
+
+//删点
+void MainWindow::removePoint(int id){
+    qDebug()<<"删点";
+    if(nowView==0||modifyingOptions!=RemoveNode)return;
+    //删除相关边
+}
+
+//加边
+void MainWindow::addEdge(int id){
+    qDebug()<<"加边";
+    if(nowView==0||modifyingOptions!=AddPath)return;
+    //第一个选的点
+    if(lastAddPathStartPoint==nullptr){
+        //找到对应id点
+        auto pointLists=this->maps->at(usingMap)->getPointsList();
+        for(int i=0;i<pointLists->size();i++){
+            if(pointLists->at(i)->id==id){
+                lastAddPathStartPoint=new Point(this->maps->at(usingMap)->getPointAt(i));
+                return;
+            }
+        }
+    }
+    else {
+        //点了自己则取消添加边
+        if(lastAddPathStartPoint->id==id){
+            lastAddPathStartPoint=nullptr;
+            return;
+        }
+        //已经有边
+        auto t=this->maps->at(usingMap)->getEdgesList();
+        int lastId=lastAddPathStartPoint->id;
+        for(int i=0;i<t->size();i++){
+            auto nowEdge=t->at(i);
+            if((nowEdge->x.id==lastId&&nowEdge->y.id==id)||(nowEdge->x.id==id&&nowEdge->y.id==lastId))
+                return;
+        }
+        //即不是第一个 也不是重复边 也不是自环则加边
+        //找到对应id点
+        auto pointLists=this->maps->at(usingMap)->getPointsList();
+        for(int i=0;i<pointLists->size();i++){
+            if(pointLists->at(i)->id==id){
+                Edge *newEdge=new Edge(*lastAddPathStartPoint,*pointLists->at(i));
+                //road加入队列
+                this->maps->at(usingMap)->pushEdge(newEdge);
+                //渲染road Edge &edge,bool isRoad,int penWidth,QColor color,bool slowDrawing
+                this->addEdge(*newEdge,true);
+                //设置新的Point
+                delete lastAddPathStartPoint;
+                lastAddPathStartPoint=new Point(this->maps->at(usingMap)->getPointAt(i));
+                return;
+            }
+        }
+
+
+    }
+
 }
 
 
@@ -316,20 +434,30 @@ void MainWindow::on_pushButton_2_clicked(){
 //修改时选项
 void MainWindow::on_addBuilding_clicked(){
     this->modifyingOptions=AddBuilding;
+    lastAddPathStartPoint=nullptr;
 }
 void MainWindow::on_addNode_clicked(){
     this->modifyingOptions=AddNode;
+    lastAddPathStartPoint=nullptr;
 }
 void MainWindow::on_removeNode_clicked(){
     this->modifyingOptions=RemoveNode;
+    lastAddPathStartPoint=nullptr;
 }
 void MainWindow::on_addPath_clicked(){
     this->modifyingOptions=AddPath;
+    lastAddPathStartPoint=nullptr;
 }
 void MainWindow::on_removePath_clicked(){
     this->modifyingOptions=RemovePath;
+    lastAddPathStartPoint=nullptr;
 }
 void MainWindow::on_saveChange_clicked(){
     this->modifyingOptions=SaveChange;
+    lastAddPathStartPoint=nullptr;
 }
+
+//void MainWindow::backgroundMapClicked(QGraphicsSceneMouseEvent *event){
+//    qDebug()<<"点击了"<<event->pos();
+//}
 

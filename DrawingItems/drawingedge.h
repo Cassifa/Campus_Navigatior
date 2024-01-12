@@ -22,10 +22,11 @@ public:
     QRectF boundingRect() const override;
     // 声明paint函数
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-private:
+
     int startX,startY;
     int endX,endY;
     QString dist;
+private:
     QGraphicsTextItem *textItem;
     QColor lineColor;
     int penWidth;

@@ -3,6 +3,8 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QDebug>
+#include <QGraphicsSceneMouseEvent>
+
 //构造函数
 DrawingPoint::DrawingPoint(const Point &point,qreal radius,const QColor &color,QGraphicsItem *parent)
     :QGraphicsObject(parent), pointId(point.id), circleRadius(radius), circleColor(color){
@@ -50,20 +52,21 @@ void DrawingPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 void DrawingPoint::mousePressEvent(QGraphicsSceneMouseEvent *event){
     // 处理鼠标点击事件
     qDebug() << "圆被点击: " << circleName;
-    //调用基类默认行为
-    QGraphicsItem::mousePressEvent(event);
+    event->accept();
 }
 
 void DrawingPoint::hoverEnterEvent(QGraphicsSceneHoverEvent *event){
     // 鼠标悬停时改变透明度
     setOpacity(0.8);
     QGraphicsItem::hoverEnterEvent(event);
+    event->accept();
 }
 
 void DrawingPoint::hoverLeaveEvent(QGraphicsSceneHoverEvent *event){
     // 鼠标离开时恢复透明度
     setOpacity(1.0);
     QGraphicsItem::hoverLeaveEvent(event);
+    event->accept();
 }
 
 int DrawingPoint::getId(){

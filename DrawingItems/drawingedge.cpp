@@ -2,6 +2,8 @@
 #include <QDebug>
 #include <QString>
 #include<QPainter>
+#include <QGraphicsSceneMouseEvent>
+
 DrawingEdge::DrawingEdge(const Edge &edge, int penWidth, const QColor &color, bool slowDrawing, QGraphicsItem *parent)
     : QGraphicsLineItem(parent), startX(edge.x.x), startY(edge.x.y), endX(edge.y.x), endY(edge.y.y), dist(edge.dist)
         ,lineColor(color),penWidth(penWidth),slowDrawing(slowDrawing){
@@ -38,18 +40,19 @@ void DrawingEdge::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     Q_UNUSED(event);
     // 例如，你可以在这里处理线段被点击后的操作
     qDebug() << "Edge Clicked!";
+    event->accept();
 }
 
 void DrawingEdge::hoverEnterEvent(QGraphicsSceneHoverEvent *event){
     // 鼠标悬停时改变透明度
     setOpacity(0.8);
-    QGraphicsItem::hoverEnterEvent(event);
+    event->accept();
 }
 
 void DrawingEdge::hoverLeaveEvent(QGraphicsSceneHoverEvent *event){
     // 鼠标离开时恢复透明度
     setOpacity(1.0);
-    QGraphicsItem::hoverLeaveEvent(event);
+    event->accept();
 
 }
 

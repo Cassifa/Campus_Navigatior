@@ -5,6 +5,7 @@
 #include"CampusMap/campusmap.h"
 #include"./DrawingItems/drawingedge.h"
 #include"./DrawingItems/drawingpoint.h"
+#include"./DrawingItems/mapbackground.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -15,8 +16,7 @@ enum ModifyingOptions{
     AddBuilding,AddNode,RemoveNode,AddPath,RemovePath,SaveChange,NotModifying
 };
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow{
     Q_OBJECT
 
 public:
@@ -58,7 +58,19 @@ private slots:
 
     void on_saveChange_clicked();
 
+public slots:
+    //尝试加点
+    void tryAddPoint(QGraphicsSceneMouseEvent *event);
+    //删除点
+    void removePoint(int id);
+    //删边
+    void removePoint(Edge edge);
+    //加边
+    void addEdge(int id);
+
 private:
+    //加边时上次点到的点
+    Point *lastAddPathStartPoint=nullptr;
     Ui::MainWindow *ui;
     //当前使用的算法,枚举
     SearchAlgorithm nowUsingAlgorithm=Unchoice;
@@ -86,6 +98,7 @@ private:
     QAction *modiTool;
     QAction *addTool;
     QGraphicsScene *mapScene;
+    MapBackground *transparentItem;
 
     //初始化导航栏
     void initMenu();

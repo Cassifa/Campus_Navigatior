@@ -24,6 +24,9 @@ public:
     int getId();
     QVector<Point*>* getPointsList();
     QVector<Edge*>* getEdgesList();
+    void pushPoint(Point *point);
+    void pushEdge(Edge *edge);
+    Point* getPointAt(int x);
 private:
     //地图编号
     int id=0;

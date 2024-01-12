@@ -135,3 +135,16 @@ QVector<Point *> *CampusMap::getPointsList(){
 QVector<Edge *> *CampusMap::getEdgesList(){
     return this->edges;
 }
+
+void CampusMap::pushPoint(Point *point){
+    this->points->append(point);
+}
+
+void CampusMap::pushEdge(Edge *edge){
+    this->edges->append(edge);
+}
+
+Point *CampusMap::getPointAt(int x){
+    if(x>=points->size())return nullptr;
+    return points->at(x);
+}

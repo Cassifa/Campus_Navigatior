@@ -87,7 +87,8 @@ void CampusMap::saveMap(QString path){
     Q_UNUSED(path);
 }
 
-//根据点编号获取边
+
+//根据点编号建立一条边
 Edge* CampusMap::getEdge(int point1Id, int point2Id){
     Point *a=new Point(),*b=new Point();
     auto list=this->getPointsList();
@@ -116,35 +117,32 @@ Edge* CampusMap::getEdge(int point1Id, int point2Id){
     return result;
 }
 
-QString CampusMap::getName(){
-    return name;
-}
 
-void CampusMap::setId(int id){
-    this->id=id;
-}
-
-int CampusMap::getId(){
-    return id;
-}
-
+//Getter Setter方法
 QVector<Point *> *CampusMap::getPointsList(){
     return this->points;
 }
-
 QVector<Edge *> *CampusMap::getEdgesList(){
     return this->edges;
 }
-
-void CampusMap::pushPoint(Point *point){
-    this->points->append(point);
-}
-
-void CampusMap::pushEdge(Edge *edge){
-    this->edges->append(edge);
-}
-
 Point *CampusMap::getPointAt(int x){
     if(x>=points->size())return nullptr;
     return points->at(x);
 }
+
+QString CampusMap::getName(){
+    return name;
+}
+void CampusMap::setId(int id){
+    this->id=id;
+}
+int CampusMap::getId(){
+    return id;
+}
+void CampusMap::pushPoint(Point *point){
+    this->points->append(point);
+}
+void CampusMap::pushEdge(Edge *edge){
+    this->edges->append(edge);
+}
+

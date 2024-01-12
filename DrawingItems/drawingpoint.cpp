@@ -9,22 +9,24 @@
 DrawingPoint::DrawingPoint(const Point &point,qreal radius,const QColor &color,
                            QGraphicsItem *parent)
     :QGraphicsObject(parent), pointId(point.id), circleRadius(radius), circleColor(color){
-//    setParentItem(parent);
+    //设置是否为路口节点
     if(point.isHide)
         this->circleName=QString::number(point.id);
     else
         this->circleName=point.name;
+
     setPos(point.x, point.y);
     // 启用鼠标悬停事件
     setAcceptHoverEvents(true);
 
+    //绘制底部文字
     textItem = new QGraphicsTextItem(circleName, this);
     textItem->setFont(QFont("Arial", 10));
     textItem->setDefaultTextColor(Qt::black);
     qreal textWidth = textItem->boundingRect().width();
     textItem->setPos(-textWidth/2, circleRadius);
 }
-//
+
 QRectF DrawingPoint::boundingRect() const{
     // 计算边界矩形的左上角坐标和宽度、高度
     qreal left = -circleRadius - penWidth;
@@ -33,7 +35,6 @@ QRectF DrawingPoint::boundingRect() const{
     // 创建并返回边界矩形
     return QRectF(left,top, diameter, diameter);
 }
-
 void DrawingPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
     Q_UNUSED(option);
     Q_UNUSED(widget);
@@ -46,11 +47,9 @@ void DrawingPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     QFont font;
     font.setPixelSize(12);
     painter->setFont(font);
-
-    // 在圆的正下方绘制文本
-//    painter->drawText(QRectF(-circleRadius, circleRadius, circleRadius * 2, 20), Qt::AlignCenter, circleName);
 }
 
+//鼠标点击悬浮事件
 void DrawingPoint::mousePressEvent(QGraphicsSceneMouseEvent *event){
     // 处理鼠标点击事件
     qDebug() << "圆被点击: " << circleName;
@@ -59,19 +58,18 @@ void DrawingPoint::mousePressEvent(QGraphicsSceneMouseEvent *event){
 }
 
 void DrawingPoint::hoverEnterEvent(QGraphicsSceneHoverEvent *event){
-    // 鼠标悬停时改变透明度
     setOpacity(0.8);
     QGraphicsItem::hoverEnterEvent(event);
     event->accept();
 }
 
 void DrawingPoint::hoverLeaveEvent(QGraphicsSceneHoverEvent *event){
-    // 鼠标离开时恢复透明度
     setOpacity(1.0);
     QGraphicsItem::hoverLeaveEvent(event);
     event->accept();
 }
 
+//Getter Setter
 int DrawingPoint::getId(){
     return pointId;
 }

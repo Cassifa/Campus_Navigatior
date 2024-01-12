@@ -23,6 +23,19 @@ void GetShortestPath::init(CampusMap *map){
     this->paths.resize(0);
 }
 
+bool GetShortestPath::tryPushPoint(Point *point){
+    if(start==nullptr){
+        start=point;
+    }
+    else if(end==nullptr) {
+        end=point;
+    }
+    else {
+        return false;
+    }
+    return true;
+}
+
 //获取最短路列表
 QVector<Edge *> GetShortestPath::getShorestPath(){
     return this->shorestPath;
@@ -39,6 +52,10 @@ QString GetShortestPath::getOutpInfo(){
 //获取最短路信息/空
 QString GetShortestPath::getOutpPath(){
     if(this->shorestPath.size()==0) return "";
+}
+
+QVector<DrawingEdge *> GetShortestPath::getDrawnEdges(){
+    return this->drawnEdges;
 }
 bool GetShortestPath::getAcachieveAble(){
     return acachieveAble;
@@ -63,4 +80,7 @@ void GetShortestPath::setAutoNext(bool need){
 }
 void GetShortestPath::setMap(CampusMap *map){
     this->map=map;
+}
+void GetShortestPath::pushDrawItem(DrawingEdge *edge){
+    this->drawnEdges.append(edge);
 }

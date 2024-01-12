@@ -26,6 +26,7 @@ Point::Point(qreal a, qreal b){
     this->x=a,this->y=b;
 }
 
+//打印资料
 void Point::showInfo(){
     qDebug()<<"名称："<<name;
     qDebug()<<x<<" "<<y;

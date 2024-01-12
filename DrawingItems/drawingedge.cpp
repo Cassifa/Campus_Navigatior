@@ -4,6 +4,7 @@
 #include<QPainter>
 #include <QGraphicsSceneMouseEvent>
 int DrawingEdge::idCnts = 0;
+
 DrawingEdge::DrawingEdge(const Edge &edge, int penWidth, const QColor &color,
                          bool slowDrawing,QGraphicsItem *parent)
     :QGraphicsLineItem (parent),startX(edge.x.x), startY(edge.x.y), endX(edge.y.x), endY(edge.y.y),id(idCnts++)
@@ -34,12 +35,7 @@ void DrawingEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     painter->drawLine(QLineF(startX, startY, endX, endY));
 }
 
-int DrawingEdge::getPointXId(){
-    return pointXId;
-}
-int DrawingEdge::getPointYId(){
-    return pointYId;
-}
+//鼠标事件
 void DrawingEdge::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     Q_UNUSED(event);
     Point a(startX,startY),b(endX,endY);
@@ -62,3 +58,10 @@ void DrawingEdge::hoverLeaveEvent(QGraphicsSceneHoverEvent *event){
 
 }
 
+//Getter Setter
+int DrawingEdge::getPointXId(){
+    return pointXId;
+}
+int DrawingEdge::getPointYId(){
+    return pointYId;
+}

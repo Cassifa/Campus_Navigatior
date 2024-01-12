@@ -15,124 +15,8 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     drawBadge();
     //初始化mapScene
     initScence();
-}
-
-//初始化顶部选项:加载存档和功能栏目并绑定点击事件
-void MainWindow::initMenu(){
-    //加入三个点击框
-    navtionTool=new QAction("导航");
-    modiTool=new QAction("修改");
-    addTool=new QAction("添加地图");
-    menuBar()->addAction(navtionTool);
-    menuBar()->addAction(modiTool);
-    menuBar()->addAction(addTool);
-
-    //为点击框添加点击事件
-    //点击导航功能
-    connect(navtionTool,&QAction::triggered,this,[&](){
-        this->nowView=0;
-        changeView(nowView);
-    });
-    //点击修改功能
-    connect(modiTool,&QAction::triggered,this,[&](){
-        this->nowView=1;
-        changeView(nowView);
-    });
-
-
-    //加载所有存档
-    this->maps=new QVector<CampusMap*>;
-    //获取存档地址
-    QString path=QCoreApplication::applicationDirPath()+"/src/maps";
-    path="D:/0projects/CampusNavigatior/src/maps";
-    QDir dir(path);
-    if(!dir.exists()) dir.mkdir(path);
-    QStringList list=dir.entryList();
-    //将每个存档加载到this.maps
-    for(int i=0;i<list.count();i++){
-        if(list[i]=="."||list[i]=="..")continue;
-        CampusMap obj;
-        CampusMap* nowAddingMap=obj.addMap(path+"/"+list[i]);
-        nowAddingMap->setId(this->maps->size());
-        maps->push_back(nowAddingMap);
-    }
-
-    //将存档添加到菜单
-    for(int i=0;i<maps->size();i++){
-        //加到菜单
-        QAction *nowAddingMapAction=new QAction(maps->at(i)->getName(),this);
-        ui->menu->addAction(nowAddingMapAction);
-        //绑定点击事件
-        connect(nowAddingMapAction,&QAction::triggered,this,[=](){
-               choiceMap(i);
-        });
-    }
-}
-
-//初始化mapScence
-void MainWindow::initScence(){
-    auto graphicsView=this->ui->mapGraphicsView;
-    graphicsView->setGeometry(0, 0, graphicsView->width(), graphicsView->height());
-    QSize viewSize = ui->mapGraphicsView->size();
-    mapScene=new QGraphicsScene(0,0,viewSize.width(),viewSize.height(),this);
-    // 设置视图的中心为场景的中心
-    graphicsView->setScene(mapScene);
-    graphicsView->setSceneRect(mapScene->sceneRect());
-    // 禁用滚动条
-    graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    //添加背景图
-    transparentItem=new MapBackground(0.0,0.0,qreal(mapScene->width()), qreal(mapScene->height()),QPixmap(),this);
-    mapScene->addItem(transparentItem);
-    connect(transparentItem, &MapBackground::itemClicked, this,&MainWindow::tryAddPoint);
-
     //初始化算法类
     serachUtil.init(this->maps->at(0));
-
-    //加载0号地图
-    loadMap(0);
-    graphicsView->show();
-}
-
-//修改当前是导航还是编辑的状态
-void MainWindow::changeView(int aim){
-    if(aim==0) switchToNav();
-    else switchEdit();
-}
-
-//添加一张地图
-void MainWindow::addMap(){
-    qDebug()<<"添加地图";
-}
-
-//切换地图
-void MainWindow::choiceMap(int id){
-    usingMap=id;
-    this->loadMap(id);
-}
-
-//画校徽
-void MainWindow::drawBadge(){
-    ui->graphicsView->setGeometry(0,800,ui->graphicsView->width(),ui->graphicsView->height());
-    // 创建场景
-    QGraphicsScene *scene = new QGraphicsScene(this);
-    // 添加背景图像
-    QPixmap backgroundImage(":/ZJUT");
-    // 设置图像大小以适应 QGraphicsView
-    QSize viewSize = ui->graphicsView->size();
-    backgroundImage = backgroundImage.scaled(viewSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    QGraphicsPixmapItem *backgroundPixmap = new QGraphicsPixmapItem(backgroundImage);
-    scene->addItem(backgroundPixmap);
-    // 设置场景矩形
-    scene->setSceneRect(backgroundPixmap->boundingRect());
-    // 设置场景
-    ui->graphicsView->setScene(scene);
-    // 禁用滚轮滚动
-    ui->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    // 显示视图
-    ui->graphicsView->show();
 }
 
 //加载地图：删除原有内容并展示边与一类点
@@ -149,7 +33,7 @@ void MainWindow::loadMap(int id){
           cleanEdge(roads.at(i));
     roads.resize(0);
     //删除搜索边和最短路边
-
+    cleanAllSearchEdge();
 
     //绘制道路
     QVector<Edge*> edges=*this->maps->at(id)->getEdgesList();
@@ -165,6 +49,7 @@ void MainWindow::loadMap(int id){
     }
 }
 
+//6个绘制点与线行为:
 //将一个点添加到points1并绘制
 void MainWindow::addPoint1(Point &point){
     DrawingPoint *nowPoint=new DrawingPoint(point,20,QColor(Qt::red).lighter(150));
@@ -187,7 +72,6 @@ void MainWindow::addPoint2(Point &point){
     });
     this->mapScene->addItem(nowPoint);
 }
-
 //取消绘制点并从Vector<point*> points1/points2中删除
 void MainWindow::cleanPoint(int id){
     for(int i=0;i<points1.size();i++){
@@ -212,8 +96,18 @@ void MainWindow::cleanPoint(int id){
         }
     }
 }
-
-
+//取消绘制所有搜索边
+void MainWindow::cleanAllSearchEdge(){
+    auto edgeList=this->serachUtil.getDrawnEdges();
+    for(int i=0;i<edgeList.size();i++){
+        auto now=edgeList.at(i);
+        //从画布上删除并释放内存
+        this->mapScene->removeItem(now);
+        delete now;
+    }
+    //重置空间
+    edgeList.resize(0);
+}
 //绘制一条边,可以是roads的也可以是搜索结果,如果是roads会先添加到roads
 DrawingEdge* MainWindow::addEdge(Edge &edge,bool isRoad,int penWidth,QColor color,bool slowDrawing){
      //int penWidth, const QColor &color, bool slowDrawing
@@ -234,8 +128,7 @@ DrawingEdge* MainWindow::addEdge(Edge &edge,bool isRoad,int penWidth,QColor colo
         return nowEdge;
     }
 }
-
-//取消绘制并删除一条边 只能是road里面的,传入边的指针会去roads里找
+//取消绘制并删除一条road
 void MainWindow::cleanEdge(DrawingEdge *edge){
     if(edge==nullptr)return;
     for(int i=0;i<this->roads.size();i++){
@@ -250,45 +143,7 @@ void MainWindow::cleanEdge(DrawingEdge *edge){
 }
 
 
-//进入导航页面 重新加载地图
-void MainWindow::switchToNav(){//usingMap
-    //切换页面
-    ui->stackedWidget->setCurrentIndex(0);
-    ui->stackedWidget_2->setCurrentIndex(0);
-    //加载地图
-    loadMap(this->usingMap);
-    //重置修改栏状态
-    this->modifyingOptions=NotModifying;
-    //加边时上次点到的点
-    lastAddPathStartPoint=nullptr;
-}
-
-//进入编辑页面 显示二类点
-void MainWindow::switchEdit(){
-    //切换到修改页面
-    ui->stackedWidget->setCurrentIndex(1);
-    ui->stackedWidget_2->setCurrentIndex(1);
-    //重置修改栏状态
-    this->modifyingOptions=NotModifying;
-    //删除导航边
-    //删除导航信息
-    //显示二类点
-    QVector<Point*> points=*this->maps->at(usingMap)->getPointsList();
-    for(const Point *now:points){
-        Point nowPoint=*now;
-        if(nowPoint.isHide)addPoint2(nowPoint);
-    }
-}
-
-MainWindow::~MainWindow(){
-    delete ui;
-    delete maps;
-    for(int i=0;i<points1.size();i++)
-         delete points1[i];
-    for(int i=0;i<points2.size();i++)
-        delete points2[i];
-}
-
+//4个编辑视角下的元素点击行为:
 //加点
 void MainWindow::tryAddPoint(QGraphicsSceneMouseEvent *event){
     qDebug()<<"加点";
@@ -348,8 +203,8 @@ void MainWindow::removeEdge(Edge edge){
     if(nowView==0||modifyingOptions!=RemovePath)return;
     auto list=this->maps->at(usingMap)->getEdgesList();
     for(int i=0;i<list->size();i++){
-        //找出Maps中的边
-        if(list->at(i)->x.x==edge.x.x&&list->at(i)->y.x==edge.y.x&&list->at(i)->dist==edge.dist){
+        //找出Maps中对应的边
+        if(list->at(i)->x.x==edge.id&&list->at(i)->y.x==edge.y.x&&list->at(i)->dist==edge.dist){
             //从roads中去除
             for(int i=0;i<roads.size();i++){
                 if(roads.at(i)==nullptr)continue;
@@ -450,6 +305,158 @@ void MainWindow::addEdge(int id){
 
 }
 
+//1个导航视角下元素点击行为:
+//尝试加入搜索队列
+void MainWindow::askSerach(int id){
+    Point *tryPushIntoSearchPoint;
+    auto pointList=this->maps->at(usingMap)->getPointsList();
+    for(int i=0;i<pointList->size();i++)
+        if(pointList->at(i)->id==id){
+            tryPushIntoSearchPoint=pointList->at(i);
+            if()
+        }
+}
+
+
+//页面路由
+//进入导航页面 重新加载地图
+void MainWindow::switchToNav(){//usingMap
+    //切换页面
+    ui->stackedWidget->setCurrentIndex(0);
+    ui->stackedWidget_2->setCurrentIndex(0);
+    //加载地图
+    loadMap(this->usingMap);
+    //重置修改栏状态
+    this->modifyingOptions=NotModifying;
+    //加边时上次点到的点
+    lastAddPathStartPoint=nullptr;
+}
+//进入编辑页面 显示二类点
+void MainWindow::switchEdit(){
+    //切换到修改页面
+    ui->stackedWidget->setCurrentIndex(1);
+    ui->stackedWidget_2->setCurrentIndex(1);
+    //重置修改栏状态
+    this->modifyingOptions=NotModifying;
+    //删除导航边
+    //删除导航信息
+    //显示二类点
+    QVector<Point*> points=*this->maps->at(usingMap)->getPointsList();
+    for(const Point *now:points){
+        Point nowPoint=*now;
+        if(nowPoint.isHide)addPoint2(nowPoint);
+    }
+}
+
+
+//3个初始化页面函数:
+//初始化顶部选项:加载存档和功能栏目并绑定点击事件
+void MainWindow::initMenu(){
+    //加入三个点击框
+    navtionTool=new QAction("导航");
+    modiTool=new QAction("修改");
+    addTool=new QAction("添加地图");
+    menuBar()->addAction(navtionTool);
+    menuBar()->addAction(modiTool);
+    menuBar()->addAction(addTool);
+
+    //为点击框添加点击事件
+    //点击导航功能
+    connect(navtionTool,&QAction::triggered,this,[&](){
+        this->nowView=0;
+        switchToNav();
+    });
+    //点击修改功能
+    connect(modiTool,&QAction::triggered,this,[&](){
+        this->nowView=1;
+        switchEdit();
+    });
+
+    //加载所有存档
+    this->maps=new QVector<CampusMap*>;
+    //获取存档地址
+    QString path=QCoreApplication::applicationDirPath()+"/src/maps";
+    path="D:/0projects/CampusNavigatior/src/maps";
+    QDir dir(path);
+    if(!dir.exists()) dir.mkdir(path);
+    QStringList list=dir.entryList();
+    //将每个存档加载到this.maps
+    for(int i=0;i<list.count();i++){
+        if(list[i]=="."||list[i]=="..")continue;
+        CampusMap obj;
+        CampusMap* nowAddingMap=obj.addMap(path+"/"+list[i]);
+        nowAddingMap->setId(this->maps->size());
+        maps->push_back(nowAddingMap);
+    }
+
+    //将存档添加到菜单
+    for(int i=0;i<maps->size();i++){
+        //加到菜单
+        QAction *nowAddingMapAction=new QAction(maps->at(i)->getName(),this);
+        ui->menu->addAction(nowAddingMapAction);
+        //绑定点击事件
+        connect(nowAddingMapAction,&QAction::triggered,this,[=](){
+               choiceMap(i);
+        });
+    }
+}
+//初始化mapScence
+void MainWindow::initScence(){
+    //新建Scence
+    auto graphicsView=this->ui->mapGraphicsView;
+    graphicsView->setGeometry(0, 0, graphicsView->width(), graphicsView->height());
+    QSize viewSize = ui->mapGraphicsView->size();
+    mapScene=new QGraphicsScene(0,0,viewSize.width(),viewSize.height(),this);
+    // 设置视图的中心为场景的中心
+    graphicsView->setScene(mapScene);
+    graphicsView->setSceneRect(mapScene->sceneRect());
+    // 禁用滚动条
+    graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    //添加背景图
+    transparentItem=new MapBackground(0.0,0.0,qreal(mapScene->width()), qreal(mapScene->height()),QPixmap(),this);
+    mapScene->addItem(transparentItem);
+    connect(transparentItem, &MapBackground::itemClicked, this,&MainWindow::tryAddPoint);
+
+    //加载0号地图
+    loadMap(0);
+    graphicsView->show();
+}
+//画校徽
+void MainWindow::drawBadge(){
+    ui->graphicsView->setGeometry(0,800,ui->graphicsView->width(),ui->graphicsView->height());
+    // 创建场景
+    QGraphicsScene *scene = new QGraphicsScene(this);
+    // 添加背景图像
+    QPixmap backgroundImage(":/ZJUT");
+    // 设置图像大小以适应 QGraphicsView
+    QSize viewSize = ui->graphicsView->size();
+    backgroundImage = backgroundImage.scaled(viewSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QGraphicsPixmapItem *backgroundPixmap = new QGraphicsPixmapItem(backgroundImage);
+    scene->addItem(backgroundPixmap);
+    // 设置场景矩形
+    scene->setSceneRect(backgroundPixmap->boundingRect());
+    // 设置场景
+    ui->graphicsView->setScene(scene);
+    // 禁用滚轮滚动
+    ui->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    // 显示视图
+    ui->graphicsView->show();
+}
+
+
+//2个切换与添加地图函数:
+//添加一张地图
+void MainWindow::addMap(){
+    qDebug()<<"添加地图";
+}
+//切换地图
+void MainWindow::choiceMap(int id){
+    usingMap=id;
+    this->loadMap(id);
+}
+
 
 //改变选择算法
 void MainWindow::on_heap_clicked(){
@@ -474,7 +481,7 @@ void MainWindow::on_floyd_clicked(){
     serachUtil.setSearchAlgorithm(SearchAlgorithm::Floyd);
 }
 
-//演示时选项参数
+//演示视角时选项参数
 void MainWindow::on_checkBox_stateChanged(int arg1){
     if(arg1==Qt::Unchecked)serachUtil.setNeedShowPath(false);
     else serachUtil.setNeedShowPath(true);
@@ -491,7 +498,7 @@ void MainWindow::on_pushButton_2_clicked(){
     serachUtil.init(this->maps->at(usingMap));
 }
 
-//修改时选项
+//修改视角时的选项
 void MainWindow::on_addBuilding_clicked(){
     this->modifyingOptions=AddBuilding;
     lastAddPathStartPoint=nullptr;
@@ -517,7 +524,12 @@ void MainWindow::on_saveChange_clicked(){
     lastAddPathStartPoint=nullptr;
 }
 
-//void MainWindow::backgroundMapClicked(QGraphicsSceneMouseEvent *event){
-//    qDebug()<<"点击了"<<event->pos();
-//}
 
+MainWindow::~MainWindow(){
+    delete ui;
+    delete maps;
+    for(int i=0;i<points1.size();i++)
+         delete points1[i];
+    for(int i=0;i<points2.size();i++)
+        delete points2[i];
+}

@@ -8,11 +8,12 @@ public:
     Point(Point *point);
     Point();
     Point(qreal a,qreal b);
+
     //节点标号，两种点都有
     int id;
     //坐标
     qreal x,y;
-    //是否隐藏：中间点在导航时不显示
+    //是否隐藏：路口节点在导航时不显示
     bool isHide;
     //节点名字
     QString name;

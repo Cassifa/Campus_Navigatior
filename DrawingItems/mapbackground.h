@@ -12,6 +12,7 @@ public:
     MapBackground(qreal x, qreal y, qreal width, qreal height, const QPixmap &background,QObject *parent1, QGraphicsItem *parent = nullptr);
 
 signals:
+    //点击事件,触发tryAddPoint(QGraphicsSceneMouseEvent *event)
     void itemClicked(QGraphicsSceneMouseEvent *event);
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;

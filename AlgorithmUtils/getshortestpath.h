@@ -6,6 +6,7 @@
 #include"../CampusMap/edge.h"
 #include"../CampusMap/point.h"
 #include"../CampusMap/campusmap.h"
+#include"./DrawingItems/drawingedge.h"
 enum SearchAlgorithm{
     BFS,AStar,Heap,Dijkstra,SPFA,Gene,Floyd,Unchoice
 };
@@ -19,6 +20,7 @@ public:
     void setNeedShowPath(bool need);
     void setAutoNext(bool need);
     void setMap(CampusMap *map);
+    void pushDrawItem(DrawingEdge *edge);
 
     //获取结果
     bool getAcachieveAble();
@@ -26,8 +28,10 @@ public:
     QVector<QVector<Edge*>> getPaths();
     QString getOutpInfo();
     QString getOutpPath();
+    QVector<DrawingEdge*> getDrawnEdges();
 
     void init(CampusMap *map);
+    bool tryPushPoint(Point *point);
 
 private:
     //当前使用的算法,枚举
@@ -52,6 +56,8 @@ private:
     QVector<Edge*> shorestPath;
     QString outpInfo;
     QString outpPath;
+    //已经绘制的边
+    QVector<DrawingEdge*> drawnEdges;
 
 
     Q_PROPERTY(QVector<Edge *> getShorestPath READ getGetShorestPath WRITE setGetShorestPath NOTIFY getShorestPathChanged)

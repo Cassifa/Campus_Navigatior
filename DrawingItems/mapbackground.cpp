@@ -12,7 +12,8 @@ MapBackground::MapBackground(qreal x, qreal y, qreal width, qreal height,
     else
         backgroundItem = new QGraphicsPixmapItem(background, this);;
     backgroundItem->setPos(x, y);
-    backgroundItem->setZValue(-1);  // 将背景图像放到底层
+    // 将背景图像放到底层
+    backgroundItem->setZValue(-1);
     setBrush(Qt::transparent);
     setAcceptHoverEvents(true);
 }

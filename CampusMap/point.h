@@ -7,6 +7,7 @@ public:
     //拷贝构造
     Point(Point *point);
     Point();
+    Point(qreal a,qreal b);
     //节点标号，两种点都有
     int id;
     //坐标

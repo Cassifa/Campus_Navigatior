@@ -2,7 +2,8 @@
 #include<QDebug>
 #include<QColor>
 #include<QBrush>
-MapBackground::MapBackground(qreal x, qreal y, qreal width, qreal height, const QPixmap &background,QObject *parent1, QGraphicsItem *parent)
+MapBackground::MapBackground(qreal x, qreal y, qreal width, qreal height,
+                             const QPixmap &background,QObject *parent1, QGraphicsItem *parent)
     : QObject(parent1),QGraphicsRectItem(x, y, width, height,parent){
 
     // 设置背景图像

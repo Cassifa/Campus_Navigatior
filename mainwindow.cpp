@@ -169,6 +169,10 @@ void MainWindow::addPoint1(Point &point){
     DrawingPoint *nowPoint=new DrawingPoint(point,20,QColor(Qt::red).lighter(150));
     this->points1.append(nowPoint);
     nowPoint->setZValue(3);
+    connect(nowPoint, &DrawingPoint::pointClicked,this,[=](int pointId){
+        removePoint(pointId);
+        addEdge(pointId);
+    });
     this->mapScene->addItem(nowPoint);
 }
 //将一个点添加到points2并绘制
@@ -176,6 +180,10 @@ void MainWindow::addPoint2(Point &point){
     DrawingPoint *nowPoint=new DrawingPoint(point,8,QColor(Qt::blue).lighter(150));
     this->points2.append(nowPoint);
     nowPoint->setZValue(3);
+    connect(nowPoint, &DrawingPoint::pointClicked,this,[=](int pointId){
+        removePoint(pointId);
+        addEdge(pointId);
+    });
     this->mapScene->addItem(nowPoint);
 }
 
@@ -310,7 +318,7 @@ void MainWindow::tryAddPoint(QGraphicsSceneMouseEvent *event){
 }
 
 //删边(路) 没id
-void MainWindow::removePoint(Edge edge){
+void MainWindow::removeEdge(Edge edge){
     qDebug()<<"删边";
     if(nowView==0||modifyingOptions!=RemovePath)return;
     auto list=this->maps->at(usingMap)->getEdgesList();
@@ -337,7 +345,33 @@ void MainWindow::removePoint(Edge edge){
 void MainWindow::removePoint(int id){
     qDebug()<<"删点";
     if(nowView==0||modifyingOptions!=RemoveNode)return;
+
     //删除相关边
+    //删除map中记录
+    auto edgeList=this->maps->at(usingMap)->getEdgesList();
+    for(int i=0;i<edgeList->size();i++)
+        //找到所有相关边并从maps中删除
+       if(edgeList->at(i)->x.id==id||edgeList->at(i)->y.id==id){
+            delete edgeList->at(i);
+           edgeList->remove(i);
+       }
+    //删除所有渲染边
+    for(int i=0;i<roads.size();i++){
+        if(roads.at(i)->getPointXId()==id||roads.at(i)->getPointYId()==id)
+            cleanEdge(roads.at(i));
+    }
+
+    //删除点
+    //删除maps记录
+    auto pointList=this->maps->at(usingMap)->getPointsList();
+    for(int i=0;i<pointList->size();i++)
+        if(pointList->at(i)->id==id){
+            delete pointList->at(i);
+            pointList->remove(i);
+            break;
+        }
+    //删除绘制边
+    cleanPoint(id);
 }
 
 //加边

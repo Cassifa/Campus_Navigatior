@@ -5,14 +5,16 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QFont>
-class DrawingPoint: public QGraphicsObject{
+class DrawingPoint:public QGraphicsObject{
+    Q_OBJECT
 public:
     //根据一个point来构造
     //    int id;
     //    int x,y;
     //    bool isHide;
     //    QString name;
-    DrawingPoint(const Point &point,qreal radius,const QColor &color,QGraphicsItem *parent = nullptr);
+    DrawingPoint(const Point &point,qreal radius,const QColor &color,
+                 QGraphicsItem *parent = nullptr);
     // QGraphicsItem 重写
     //优化图像渲染
     QRectF boundingRect() const override;
@@ -24,6 +26,9 @@ public:
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
     void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
     int getId();
+
+signals:
+    void pointClicked(int id);
 private:
     //申明为常量表达式
     static constexpr qreal penWidth=1;

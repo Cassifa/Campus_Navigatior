@@ -64,7 +64,7 @@ public slots:
     //删除点
     void removePoint(int id);
     //删边
-    void removePoint(Edge edge);
+    void removeEdge(Edge edge);
     //加边
     void addEdge(int id);
 

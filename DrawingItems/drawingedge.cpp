@@ -4,8 +4,10 @@
 #include<QPainter>
 #include <QGraphicsSceneMouseEvent>
 
-DrawingEdge::DrawingEdge(const Edge &edge, int penWidth, const QColor &color, bool slowDrawing, QGraphicsItem *parent)
-    : QGraphicsLineItem(parent), startX(edge.x.x), startY(edge.x.y), endX(edge.y.x), endY(edge.y.y), dist(edge.dist)
+DrawingEdge::DrawingEdge(const Edge &edge, int penWidth, const QColor &color,
+                         bool slowDrawing,QGraphicsItem *parent)
+    :QGraphicsLineItem (parent), startX(edge.x.x), startY(edge.x.y), endX(edge.y.x), endY(edge.y.y), dist(edge.dist)
+        ,pointXId(edge.x.id),pointYId(edge.y.id)
         ,lineColor(color),penWidth(penWidth),slowDrawing(slowDrawing){
     // 设置可接受点击
     setFlag(QGraphicsItem::ItemIsSelectable);
@@ -33,12 +35,17 @@ void DrawingEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     painter->drawLine(QLineF(startX, startY, endX, endY));
 }
 
-void DrawingEdge::setAnimationEnabled(bool enabled) {
+int DrawingEdge::getPointXId(){
+    return pointXId;
 }
-
+int DrawingEdge::getPointYId(){
+    return pointYId;
+}
 void DrawingEdge::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     Q_UNUSED(event);
-    // 例如，你可以在这里处理线段被点击后的操作
+    Point a(startX,startY),b(endX,endY);
+    Edge temp(a,b);
+//    emit edgeClicked(temp);
     qDebug() << "Edge Clicked!";
     event->accept();
 }

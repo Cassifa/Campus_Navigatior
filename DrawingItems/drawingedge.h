@@ -8,12 +8,13 @@
 #include<QObject>
 #include"./CampusMap/edge.h"
 #include<QPropertyAnimation>
-class DrawingEdge : public QGraphicsLineItem{//,public QObject {
+class DrawingEdge :public QGraphicsLineItem{
 //    Q_OBJECT
 public:
-    DrawingEdge(const Edge &edge, int penWidth, const QColor &color, bool slowDrawing, QGraphicsItem *parent = nullptr);
+    DrawingEdge(const Edge &edge, int penWidth, const QColor &color,
+                bool slowDrawing,QGraphicsItem *parent = nullptr);
     //设置是否有绘制动画
-    void setAnimationEnabled(bool enabled);
+//    void setAnimationEnabled(bool enabled);
     //鼠标点击事件
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
@@ -26,12 +27,16 @@ public:
     int startX,startY;
     int endX,endY;
     QString dist;
+    int getPointXId();
+    int getPointYId();
+signals:
+    void edgeClicked(Edge edge);
 private:
+    int pointXId,pointYId;
     QGraphicsTextItem *textItem;
     QColor lineColor;
     int penWidth;
     bool slowDrawing;
-//    QPropertyAnimation* animation;
 };
 
 #endif // DRAWINGEDGE_H

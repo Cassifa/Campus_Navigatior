@@ -4,10 +4,12 @@
 #include <QMouseEvent>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
-
+#include<QObject>
 //构造函数
-DrawingPoint::DrawingPoint(const Point &point,qreal radius,const QColor &color,QGraphicsItem *parent)
+DrawingPoint::DrawingPoint(const Point &point,qreal radius,const QColor &color,
+                           QGraphicsItem *parent)
     :QGraphicsObject(parent), pointId(point.id), circleRadius(radius), circleColor(color){
+//    setParentItem(parent);
     if(point.isHide)
         this->circleName=QString::number(point.id);
     else
@@ -53,6 +55,7 @@ void DrawingPoint::mousePressEvent(QGraphicsSceneMouseEvent *event){
     // 处理鼠标点击事件
     qDebug() << "圆被点击: " << circleName;
     event->accept();
+    emit pointClicked(this->pointId);
 }
 
 void DrawingPoint::hoverEnterEvent(QGraphicsSceneHoverEvent *event){

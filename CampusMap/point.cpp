@@ -22,6 +22,10 @@ Point::Point(){
     this->id=-1;
 }
 
+Point::Point(qreal a, qreal b){
+    this->x=a,this->y=b;
+}
+
 void Point::showInfo(){
     qDebug()<<"名称："<<name;
     qDebug()<<x<<" "<<y;

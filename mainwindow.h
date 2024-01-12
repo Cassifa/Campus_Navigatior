@@ -6,12 +6,10 @@
 #include"./DrawingItems/drawingedge.h"
 #include"./DrawingItems/drawingpoint.h"
 #include"./DrawingItems/mapbackground.h"
+#include"./AlgorithmUtils/getshortestpath.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
-enum SearchAlgorithm{
-    BFS,AStar,Heap,Dijkstra,SPFA,Gene,Floyd,Unchoice
-};
 enum ModifyingOptions{
     AddBuilding,AddNode,RemoveNode,AddPath,RemovePath,SaveChange,NotModifying
 };
@@ -71,9 +69,9 @@ public slots:
 private:
     //加边时上次点到的点
     Point *lastAddPathStartPoint=nullptr;
+    //搜索工具
+    GetShortestPath serachUtil;
     Ui::MainWindow *ui;
-    //当前使用的算法,枚举
-    SearchAlgorithm nowUsingAlgorithm=Unchoice;
     //修改地图时选择的功能
     ModifyingOptions modifyingOptions=NotModifying;
     //当前使用功能 0:导航 1:编辑

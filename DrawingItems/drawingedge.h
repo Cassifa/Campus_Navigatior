@@ -24,8 +24,10 @@ public:
     // 声明paint函数
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
+    static int idCnts;
     int startX,startY;
     int endX,endY;
+    int id;
     QString dist;
     int getPointXId();
     int getPointYId();

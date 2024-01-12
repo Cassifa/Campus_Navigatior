@@ -19,13 +19,6 @@ MapBackground::MapBackground(qreal x, qreal y, qreal width, qreal height,
 
 void MapBackground::mousePressEvent(QGraphicsSceneMouseEvent *event){
     emit itemClicked(event);
-    if (event->button() == Qt::LeftButton) {
-        qDebug() << "Left mouse button clicked at scene position:" << event->scenePos();
-        qDebug() << "Local position:" << event->pos();
-    } else if (event->button() == Qt::RightButton) {
-        qDebug() << "Right mouse button clicked at scene position:" << event->scenePos();
-        qDebug() << "Local position:" << event->pos();
-    }
-
+    qDebug() << "点了背景" << event->scenePos();
     QGraphicsItem::mousePressEvent(event);
 }

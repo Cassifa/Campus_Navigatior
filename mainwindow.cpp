@@ -30,7 +30,6 @@ void MainWindow::initMenu(){
     //为点击框添加点击事件
     //点击导航功能
     connect(navtionTool,&QAction::triggered,this,[&](){
-        qDebug()<<"点击了导航";
         this->nowView=0;
         changeView(nowView);
     });
@@ -68,7 +67,6 @@ void MainWindow::initMenu(){
                choiceMap(i);
         });
     }
-    qDebug()<<"执行完成"<<endl;
 }
 
 //初始化mapScence
@@ -88,6 +86,9 @@ void MainWindow::initScence(){
     transparentItem=new MapBackground(0.0,0.0,qreal(mapScene->width()), qreal(mapScene->height()),QPixmap(),this);
     mapScene->addItem(transparentItem);
     connect(transparentItem, &MapBackground::itemClicked, this,&MainWindow::tryAddPoint);
+
+    //初始化算法类
+    serachUtil.init(this->maps->at(0));
 
     //加载0号地图
     loadMap(0);
@@ -452,41 +453,42 @@ void MainWindow::addEdge(int id){
 
 //改变选择算法
 void MainWindow::on_heap_clicked(){
-    this->nowUsingAlgorithm=BFS;
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::BFS);
 }
 void MainWindow::on_aStar_clicked(){
-    this->nowUsingAlgorithm=AStar;
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::AStar);
 }
 void MainWindow::on_dijkstra_clicked(){
-    this->nowUsingAlgorithm=Dijkstra;
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::Dijkstra);
 }
 void MainWindow::on_bfs_clicked(){
-    this->nowUsingAlgorithm=BFS;
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::BFS);
 }
 void MainWindow::on_spfa_clicked(){
-    this->nowUsingAlgorithm=SPFA;
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::SPFA);
 }
 void MainWindow::on_gene_clicked(){
-    this->nowUsingAlgorithm=Gene;
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::Gene);
 }
 void MainWindow::on_floyd_clicked(){
-    this->nowUsingAlgorithm=Floyd;
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::Floyd);
 }
 
 //演示时选项参数
 void MainWindow::on_checkBox_stateChanged(int arg1){
-    if(arg1==Qt::Unchecked)this->needShowPath=false;
-    else needShowPath=true;
+    if(arg1==Qt::Unchecked)serachUtil.setNeedShowPath(false);
+    else serachUtil.setNeedShowPath(true);
 }
 void MainWindow::on_checkBox_2_stateChanged(int arg1){
-    if(arg1==Qt::Unchecked)this->autoNext=false;
-    else autoNext=true;
+    if(arg1==Qt::Unchecked)serachUtil.setAutoNext(false);
+    else serachUtil.setAutoNext(true);
 }
 void MainWindow::on_pushButton_clicked(){
     qDebug()<<"要求下一步";
 }
 void MainWindow::on_pushButton_2_clicked(){
     qDebug()<<"重置搜索过程";
+    serachUtil.init(this->maps->at(usingMap));
 }
 
 //修改时选项

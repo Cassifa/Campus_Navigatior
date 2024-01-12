@@ -1,11 +1,36 @@
 #ifndef DRAWINGEDGE_H
 #define DRAWINGEDGE_H
 
-
-class DrawingEdge
-{
+#include <QGraphicsLineItem>
+#include <QGraphicsTextItem>
+#include <QPen>
+#include <QString>
+#include<QObject>
+#include"./CampusMap/edge.h"
+#include<QPropertyAnimation>
+class DrawingEdge : public QGraphicsLineItem{//,public QObject {
+//    Q_OBJECT
 public:
-    DrawingEdge();
+    DrawingEdge(const Edge &edge, int penWidth, const QColor &color, bool slowDrawing, QGraphicsItem *parent = nullptr);
+    //设置是否有绘制动画
+    void setAnimationEnabled(bool enabled);
+    //鼠标点击事件
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
+    // 声明boundingRect函数
+    QRectF boundingRect() const override;
+    // 声明paint函数
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+private:
+    int startX,startY;
+    int endX,endY;
+    QString dist;
+    QGraphicsTextItem *textItem;
+    QColor lineColor;
+    int penWidth;
+    bool slowDrawing;
+//    QPropertyAnimation* animation;
 };
 
 #endif // DRAWINGEDGE_H

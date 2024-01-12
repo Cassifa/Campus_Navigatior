@@ -30,6 +30,7 @@ private:
     QString name;
     QVector<Point*> *points;
     QVector<Edge*> *edges;
+    Edge* getEdge(int point1Id,int point2Id);
 };
 
 #endif // CAMPUSMAP_H

@@ -74,8 +74,8 @@ private:
     bool autoNext=false;
     //当前地图
     QVector<CampusMap*> *maps;
-    //当前需要绘制的边
-//    DrawingEdges *drawingEdges=new DrawingEdges();
+    //当前需要绘制的边(道路)
+    QVector<DrawingEdge*> roads;
     //当前需要绘制的一类点:标志建筑
     QVector<DrawingPoint*> points1;
     //需要绘制的二类点：节点
@@ -102,12 +102,19 @@ private:
     //加载一张id地图
     void loadMap(int id);
 
+    //以下只操作绘图容器,删除maps的功能在其它地方实现
     //将一类点添加到points1并绘制 传入数据而非指针
-    void addPoint1(Point &points);
+    void addPoint1(Point &point);
     //将二类点添加到points2并绘制
-    void addPoint2(Point &points);
+    void addPoint2(Point &point);
     //删除一个点并取消绘制
-    void cleanPoints(int id);
+    void cleanPoint(int id);
+    //绘制一条边,可以是roads的也可以是搜索结果,如果是roads会先添加到roads 如果不是返回Item指针
+    DrawingEdge* addEdge(Edge &edge,bool isRoad,//非road会窜入下面属性，最短路最要求不缓慢展示
+                         int penWidth=4,QColor color=QColor(Qt::black),bool slowDrawing=true);
+    //取消绘制并删除一条边 只能是road里面的,传入边的指针会去roads里找
+    void cleanEdge(DrawingEdge *edge);
+
 
     //进入导航页面
     void switchToNav();

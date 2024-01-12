@@ -4,6 +4,8 @@
 #include<QDir>
 #include<QGraphicsPixmapItem>
 #include"./DrawingItems/drawingpoint.h"
+#include<QGraphicsView>
+#include<QGraphicsScene>
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
     //初始化顶部选项:加载存档和功能栏目并绑定点击事件
@@ -12,6 +14,9 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     drawBadge();
     //初始化mapScene
     initScence();
+//    this->ui->mapGraphicsView->
+    connect(mapScene,&QGraphicsScene::viewClicked, this, &MainWindow::mapGraphicsViewClicked);
+
 }
 
 //初始化顶部选项:加载存档和功能栏目并绑定点击事件
@@ -100,9 +105,7 @@ void MainWindow::addMap(){
 
 //切换地图
 void MainWindow::choiceMap(int id){
-    qDebug()<<"点击了存档";
-    qDebug()<<"切换到了id为"<<id<<"的存档";
-    qDebug()<<"名称为："<<maps->at(id)->getName();
+    usingMap=id;
     this->loadMap(id);
 }
 
@@ -133,12 +136,24 @@ void MainWindow::drawBadge(){
 void MainWindow::loadMap(int id){
     //删除原有点
     for(int i=0;i<points1.size();i++)
-        cleanPoints(points1[i]->getId());
+        cleanPoint(points1[i]->getId());
     points1.resize(0);
     for(int i=0;i<points2.size();i++)
-        cleanPoints(points2[i]->getId());
+        cleanPoint(points2[i]->getId());
     points2.resize(0);
+    //删除原有道路
+     for(int i=0;i<roads.size();i++)
+          cleanEdge(roads.at(i));
+    roads.resize(0);
+    //删除搜索边和最短路边
 
+
+    //绘制道路
+    QVector<Edge*> edges=*this->maps->at(id)->getEdgesList();
+    for(const Edge *now:edges){
+        Edge nowEdge=*now;
+        this->addEdge(nowEdge,true);
+    }
     //绘制新点
     QVector<Point*> points=*this->maps->at(id)->getPointsList();
     for(const Point *now:points){
@@ -149,36 +164,77 @@ void MainWindow::loadMap(int id){
 
 //将一个点添加到points1并绘制
 void MainWindow::addPoint1(Point &point){
-    DrawingPoint *nowPoint=new DrawingPoint(point,30,QColor(Qt::red).lighter(150));
+    DrawingPoint *nowPoint=new DrawingPoint(point,20,QColor(Qt::red).lighter(150));
     this->points1.append(nowPoint);
     this->mapScene->addItem(nowPoint);
 }
 //将一个点添加到points2并绘制
 void MainWindow::addPoint2(Point &point){
-    DrawingPoint *nowPoint=new DrawingPoint(point,10,QColor(Qt::blue).lighter(150));
+    DrawingPoint *nowPoint=new DrawingPoint(point,8,QColor(Qt::blue).lighter(150));
     this->points2.append(nowPoint);
     this->mapScene->addItem(nowPoint);
 }
 
-//取消绘制点并从Vector<point>中删除
-void MainWindow::cleanPoints(int id){
+//取消绘制点并从Vector<point*> points1/points2中删除
+void MainWindow::cleanPoint(int id){
     for(int i=0;i<points1.size();i++){
         auto now=points1[i];
+        //跳过已经被删除的点
+        if(now==nullptr)continue;
         if(now->getId()==id){
             this->mapScene->removeItem(now);
             delete now;
+            now=nullptr;
             return;
         }
     }
     for(int i=0;i<points2.size();i++){
         auto now=points2[i];
+        if(now==nullptr)continue;
         if(now->getId()==id){
             this->mapScene->removeItem(now);
             delete now;
+            now=nullptr;
             return;
         }
     }
 }
+
+
+//绘制一条边,可以是roads的也可以是搜索结果,如果是roads会先添加到roads
+DrawingEdge* MainWindow::addEdge(Edge &edge,bool isRoad,int penWidth,QColor color,bool slowDrawing){
+     //int penWidth, const QColor &color, bool slowDrawing
+    DrawingEdge *nowEdge;
+    if(isRoad){
+        //创建普通道路并加入roads;
+        nowEdge=new DrawingEdge(edge,penWidth,color,false);
+        this->roads.append(nowEdge);
+        this->mapScene->addItem(nowEdge);
+        return nullptr;
+    }
+    else {
+        //创建搜索边
+        nowEdge=new DrawingEdge(edge,penWidth,color,slowDrawing);
+        this->mapScene->addItem(nowEdge);
+        return nowEdge;
+    }
+}
+
+//取消绘制并删除一条边 只能是road里面的,传入边的指针会去roads里找
+void MainWindow::cleanEdge(DrawingEdge *edge){
+    if(edge==nullptr)return;
+    for(int i=0;i<this->roads.size();i++){
+        auto now=roads.at(i);
+        if(now==edge){
+            this->mapScene->removeItem(now);
+            delete now;
+            now=nullptr;
+            return;
+        }
+    }
+}
+
+
 
 //进入导航页面 重新加载地图
 void MainWindow::switchToNav(){//usingMap
@@ -198,6 +254,8 @@ void MainWindow::switchEdit(){
     ui->stackedWidget_2->setCurrentIndex(1);
     //重置修改栏状态
     this->modifyingOptions=NotModifying;
+    //删除导航边
+    //删除导航信息
     //显示二类点
     QVector<Point*> points=*this->maps->at(usingMap)->getPointsList();
     for(const Point *now:points){

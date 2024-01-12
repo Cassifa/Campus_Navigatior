@@ -58,16 +58,16 @@ CampusMap* CampusMap::addMap(QString path){
             int a,b;
             in>>a>>b;
             if(a==-1)break;
-            nowMap->edges->append(new Edge(a,b));
+            nowMap->edges->append(nowMap->getEdge(a,b));
         }
 
         //展示存储效果
-        qDebug()<<"地图名"<<nowMap->name<<endl;
-        qDebug()<<"点：";
-        for(int i=0;i<nowMap->points->size();i++)
-               nowMap->points->at(i)->showInfo();
-        for(int i=0;i<nowMap->edges->size();i++)
-            qDebug()<<nowMap->edges->at(i)->x<<nowMap->edges->at(i)->y;
+//        qDebug()<<"地图名"<<nowMap->name<<endl;
+//        qDebug()<<"点：";
+//        for(int i=0;i<nowMap->points->size();i++)
+//               nowMap->points->at(i)->showInfo();
+//        for(int i=0;i<nowMap->edges->size();i++)
+//            qDebug()<<nowMap->edges->at(i)->x<<nowMap->edges->at(i)->y;
 
         file.close();
     }
@@ -84,6 +84,36 @@ CampusMap* CampusMap::addMap(QString path){
 */
 void CampusMap::saveMap(QString path){
 
+    Q_UNUSED(path);
+}
+
+//根据点编号获取边
+Edge* CampusMap::getEdge(int point1Id, int point2Id){
+    Point *a=new Point(),*b=new Point();
+    auto list=this->getPointsList();
+    for(int i=0;i<list->size();i++){
+        auto nowPoint=list->at(i);
+        if(nowPoint->id==point1Id){
+            a->id=nowPoint->id;
+            a->x=nowPoint->x;
+            a->y=nowPoint->y;
+            a->name=nowPoint->name;
+            a->isHide=nowPoint->isHide;
+        }
+        else if(nowPoint->id==point2Id){
+            b->id=nowPoint->id;
+            b->x=nowPoint->x;
+            b->y=nowPoint->y;
+            b->name=nowPoint->name;
+            b->isHide=nowPoint->isHide;
+        }
+        else if(a->id!=-1&&b->id!=-1)break;
+    }
+    Edge* result = nullptr;
+    if (a!=nullptr&&b!=nullptr) result = new Edge(*a, *b);
+    delete a;
+    delete b;
+    return result;
 }
 
 QString CampusMap::getName(){

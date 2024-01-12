@@ -4,6 +4,9 @@
 class Point{
 public:
     Point(qreal x,qreal y,int id,bool isHide,QString name=nullptr);
+    //拷贝构造
+    Point(Point *point);
+    Point();
     //节点标号，两种点都有
     int id;
     //坐标

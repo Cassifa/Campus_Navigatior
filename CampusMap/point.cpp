@@ -10,6 +10,18 @@ Point::Point(qreal x,qreal y,int id,bool isHide,QString name){
 
 }
 
+Point::Point(Point *point){
+    this->id=point->id;
+    this->x=point->x;
+    this->y=point->y;
+    this->name=point->name;
+    this->isHide=point->isHide;
+}
+
+Point::Point(){
+    this->id=-1;
+}
+
 void Point::showInfo(){
     qDebug()<<"名称："<<name;
     qDebug()<<x<<" "<<y;

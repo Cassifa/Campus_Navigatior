@@ -68,6 +68,7 @@ void MainWindow::cleanPoint(int id){
         }
     }
 }
+
 //取消绘制所有搜索边
 void MainWindow::cleanAllSearchEdge(){
     auto edgeList=this->serachUtil.getDrawnEdges();
@@ -281,14 +282,14 @@ void MainWindow::askSerach(int id){
     for(int i=0;i<pointList->size();i++)
         //找到被点击的点
         if(pointList->at(i)->id==id){
-            if(this->serachUtil.tryPushPoint(pointList->at(i))){
-                this->refreashOutputArea();
-            }
+            //尝试加入起点/终点
+            this->serachUtil.tryPushPoint(pointList->at(i));
+            checkAlgorithmUtilStatus();
         }
 }
 
 
-//4个页面路由及刷新信息函数
+//6个页面路由及刷新信息函数
 //进入导航页面 重新加载地图
 void MainWindow::switchToNav(){//usingMap
     //切换页面
@@ -309,7 +310,11 @@ void MainWindow::switchEdit(){
     //重置修改栏状态
     this->modifyingOptions=NotModifying;
     //删除导航边
+     cleanAllSearchEdge();
     //删除导航信息
+     serachUtil.init(this->maps->at(usingMap));
+     this->nowCallUpTo=0;
+     refreashOutputArea();
     //显示二类点
     QVector<Point*> points=*this->maps->at(usingMap)->getPointsList();
     for(const Point *now:points){
@@ -324,6 +329,60 @@ void MainWindow::refreashOutputArea(){
     pathInformation=this->serachUtil.getOutpPath();
     this->ui->label_7->setText(beginEndInformation);
     this->ui->label_9->setText(pathInformation);
+}
+//展示搜索过程
+void MainWindow::callShowPath(){
+    auto ai=this->serachUtil;
+    //展示搜索过程:中间边都绘制
+    //自动下一步：展示搜索过程的话隔一秒话下一步
+    if(!serachUtil.getIsNeedShowPath()||serachUtil.getIsAutoNext()){
+        if(!serachUtil.getIsNeedShowPath()){
+            auto adgeList=this->serachUtil.getShorestPath();
+            for(int i=0;i<adgeList.size();i++){
+                DrawingEdge *edge=addEdge(*adgeList.at(i),false,5,QColor(Qt::cyan),false);
+                this->serachUtil.pushDrawItem(edge);
+            }
+        }
+        else {
+             int cnts=serachUtil.getPaths().size()+1;
+             while (cnts--) {
+                 showOncePath();
+                 QThread::sleep(1);
+             }
+        }
+    }
+    else showOncePath();
+}
+//绘制一次数据
+void MainWindow::showOncePath(){
+    //全部展示过了
+    if(nowCallUpTo>this->serachUtil.getPaths().size())return;
+    //如果已经展示完所有则绘制最短路
+    if(nowCallUpTo==this->serachUtil.getPaths().size()){
+        auto adgeList=this->serachUtil.getShorestPath();
+        for(int i=0;i<adgeList.size();i++){
+            DrawingEdge *edge=addEdge(*adgeList.at(i),false,5,QColor(Qt::cyan),true);
+            this->serachUtil.pushDrawItem(edge);
+        }
+    }
+    else{
+        auto adgeList=this->serachUtil.getPaths().at(nowCallUpTo);
+        for(int i=0;i<adgeList.size();i++){
+            DrawingEdge *edge=addEdge(*adgeList.at(i),false,5,QColor(Qt::cyan),true);
+            this->serachUtil.pushDrawItem(edge);
+        }
+    }
+}
+//刷新底部输出栏 检测是否可以计算了,可以的话执行展示函数
+void MainWindow::checkAlgorithmUtilStatus(){
+    //检查是否可以执行算法
+    this->serachUtil.canCompute();
+    //刷新底部输出栏
+    this->refreashOutputArea();
+    //如果有去搜 执行展示函数
+    if(this->serachUtil.getIsComputed())
+        callShowPath();
+
 }
 //加载地图：删除原有内容并展示边与一类点
 void MainWindow::loadMap(int id){
@@ -424,6 +483,9 @@ void MainWindow::initScence(){
     mapScene->addItem(transparentItem);
     connect(transparentItem, &MapBackground::itemClicked, this,&MainWindow::tryAddPoint);
 
+    //清除默认文字
+    this->ui->label_7->setText("");
+    this->ui->label_9->setText("");
     //加载0号地图
     loadMap(0);
     graphicsView->show();
@@ -460,52 +522,53 @@ void MainWindow::addMap(){
 //切换地图
 void MainWindow::choiceMap(int id){
     usingMap=id;
+    //重新加载地图
     this->loadMap(id);
+    //重新构建算法类
+    serachUtil.init(this->maps->at(usingMap));
+    //刷新输出区域
+    refreashOutputArea();
+    this->nowCallUpTo=0;
 }
 
 
-//改变选择算法
-void MainWindow::on_heap_clicked(){
-    serachUtil.setSearchAlgorithm(SearchAlgorithm::BFS);
-}
-void MainWindow::on_aStar_clicked(){
-    serachUtil.setSearchAlgorithm(SearchAlgorithm::AStar);
-}
-void MainWindow::on_dijkstra_clicked(){
-    serachUtil.setSearchAlgorithm(SearchAlgorithm::Dijkstra);
-}
-void MainWindow::on_bfs_clicked(){
-    serachUtil.setSearchAlgorithm(SearchAlgorithm::BFS);
-}
-void MainWindow::on_spfa_clicked(){
-    serachUtil.setSearchAlgorithm(SearchAlgorithm::SPFA);
-}
-void MainWindow::on_gene_clicked(){
-    serachUtil.setSearchAlgorithm(SearchAlgorithm::Gene);
-}
-void MainWindow::on_floyd_clicked(){
-    serachUtil.setSearchAlgorithm(SearchAlgorithm::Floyd);
-}
-
-//演示视角时选项参数
+//4导航视角时选项参数
 void MainWindow::on_checkBox_stateChanged(int arg1){
+    //已经搜索了不允许设置NeedShowPath
+    if(this->serachUtil.getIsComputed()){
+        this->ui->checkBox->setChecked(!arg1);
+        return;
+    }
     if(arg1==Qt::Unchecked)serachUtil.setNeedShowPath(false);
     else serachUtil.setNeedShowPath(true);
 }
 void MainWindow::on_checkBox_2_stateChanged(int arg1){
+    //已经搜索了不允许设置AutoNext
+    if(this->serachUtil.getIsComputed()){
+        this->ui->checkBox_2->setChecked(!arg1);
+        return;
+    }
     if(arg1==Qt::Unchecked)serachUtil.setAutoNext(false);
     else serachUtil.setAutoNext(true);
 }
 void MainWindow::on_pushButton_clicked(){
     qDebug()<<"要求下一步";
+    auto ai=this->serachUtil;
+    //还没搜索或者是自动播放就忽略点击
+    if(!ai.getIsComputed()||ai.getIsAutoNext())return;
+    showOncePath();
 }
 void MainWindow::on_pushButton_2_clicked(){
     qDebug()<<"重置搜索过程";
     serachUtil.init(this->maps->at(usingMap));
+    this->nowCallUpTo=0;
     refreashOutputArea();
+    this->ui->checkBox->setChecked(false);
+    this->ui->checkBox_2->setChecked(false);
 }
 
-//修改视角时的选项
+
+//6修改视角时的选项
 void MainWindow::on_addBuilding_clicked(){
     this->modifyingOptions=AddBuilding;
     lastAddPathStartPoint=nullptr;
@@ -531,6 +594,36 @@ void MainWindow::on_saveChange_clicked(){
     lastAddPathStartPoint=nullptr;
 }
 
+
+//改变选择算法
+void MainWindow::on_heap_clicked(){
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::BFS);
+    checkAlgorithmUtilStatus();
+}
+void MainWindow::on_aStar_clicked(){
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::AStar);
+    checkAlgorithmUtilStatus();
+}
+void MainWindow::on_dijkstra_clicked(){
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::Dijkstra);
+    checkAlgorithmUtilStatus();
+}
+void MainWindow::on_bfs_clicked(){
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::BFS);
+    checkAlgorithmUtilStatus();
+}
+void MainWindow::on_spfa_clicked(){
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::SPFA);
+    checkAlgorithmUtilStatus();
+}
+void MainWindow::on_gene_clicked(){
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::Gene);
+    checkAlgorithmUtilStatus();
+}
+void MainWindow::on_floyd_clicked(){
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::Floyd);
+    checkAlgorithmUtilStatus();
+}
 
 MainWindow::~MainWindow(){
     delete ui;

@@ -61,6 +61,8 @@ private:
     int usingMap=0;
     //当前使用功能 0:导航 1:编辑
     int nowView=0;
+    //当前展示执行过程到了哪一步
+    int nowCallUpTo=0;
 
     //初始化与页面切换函数:
     //初始化导航栏
@@ -77,10 +79,18 @@ private:
     void addMap();
     //切换地图
     void choiceMap(int id);
+
+    //刷新与行为函数:
     //加载并渲染一张地图
     void loadMap(int id);
     //刷新底部输出信息
     void refreashOutputArea();
+    //执行搜索函数
+    void callShowPath();
+    //绘制一次数据;
+    void showOncePath();
+    //刷新底部输出栏 检测是否可以计算了,可以的话执行展示函数
+    void checkAlgorithmUtilStatus();
 
     //绘制函数:
     //以下只操作绘图容器,删除maps的功能在其它地方实现

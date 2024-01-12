@@ -23,7 +23,11 @@ public:
     void pushDrawItem(DrawingEdge *edge);
 
     //获取结果
+    bool getIsComputed();
     bool getAcachieveAble();
+    bool getIsNeedShowPath();
+    bool getIsAutoNext();
+    SearchAlgorithm getSearchAlgorithm();
     QVector<Edge*> getShorestPath();
     QVector<QVector<Edge*>> getPaths();
     //最短距离,起点,终点
@@ -32,8 +36,13 @@ public:
     QString getOutpPath();
     QVector<DrawingEdge*> getDrawnEdges();
 
+    //初始化
     void init(CampusMap *map);
     bool tryPushPoint(Point *point);
+    //调用对应算法计算最短路
+    void compute();
+    //是否可计算
+    bool canCompute();
 
 private:
     //当前使用的算法,枚举
@@ -44,6 +53,8 @@ private:
     bool needShowPath;
     //是否自动下一步
     bool autoNext;
+    //初始化后是否计算过随锻炼
+    bool isComputed;
 
     //使用的地图
     CampusMap *map;

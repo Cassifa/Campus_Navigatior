@@ -21,9 +21,11 @@ void GetShortestPath::init(CampusMap *map){
     this->acachieveAble=false;
     this->shorestPath.resize(0);
     this->paths.resize(0);
+    //没计算过
+    isComputed=false;
 }
 
-//尝试加入待搜索队列
+//尝试加入待搜索队列,起点终点都有了就计算
 bool GetShortestPath::tryPushPoint(Point *point){
     if(start==nullptr){
         start=point;
@@ -31,11 +33,24 @@ bool GetShortestPath::tryPushPoint(Point *point){
     else if(end==nullptr&&start->id!=point->id) {
         //不允许选相同的点
         end=point;
+        return true;
     }
-    else {
-        return false;
-    }
-    return true;
+    return false;
+}
+
+//调用算法执行搜索
+void GetShortestPath::compute(){
+    qDebug()<<"计算了";
+    //标记已经计算过了
+    isComputed=true;
+}
+
+//判断是否可计算,并自动执行搜索
+bool GetShortestPath::canCompute(){
+    //有起点有终点有算法 并且没有计算过
+    bool ans=(nowUsingAlgorithm!=Unchoice&&start!=nullptr&&end!=nullptr&&!isComputed);
+    if(ans)compute();
+    return ans;
 }
 
 //获取每次搜索路径
@@ -60,7 +75,20 @@ QString GetShortestPath::getOutpInfo(){
 }
 //获取最短路信息/空
 QString GetShortestPath::getOutpPath(){
-    if(this->shorestPath.size()==0) return "";
+    //没有最短路说明要么没搜要么没最短路
+    if(this->shorestPath.size()==0){
+        if(isComputed) return "不可达";
+        return "尚未搜索";
+    }
+    QString path;
+    path+=shorestPath.at(0)->x.name;
+    path+="->";
+    for(int i=0;i<shorestPath.size();i++){
+        path+=shorestPath.at(i)->y.name;
+        if(i!=shorestPath.size()-1)
+            path+="->";
+    }
+    return path;
 }
 //获取已经绘制的QItems
 QVector<DrawingEdge *> GetShortestPath::getDrawnEdges(){
@@ -68,6 +96,12 @@ QVector<DrawingEdge *> GetShortestPath::getDrawnEdges(){
 }
 bool GetShortestPath::getAcachieveAble(){
     return acachieveAble;
+}
+bool GetShortestPath::getIsNeedShowPath(){
+    return needShowPath;
+}
+bool GetShortestPath::getIsAutoNext(){
+    return autoNext;
 }
 
 
@@ -92,4 +126,10 @@ void GetShortestPath::setMap(CampusMap *map){
 }
 void GetShortestPath::pushDrawItem(DrawingEdge *edge){
     this->drawnEdges.append(edge);
+}
+bool GetShortestPath::getIsComputed(){
+    return isComputed;
+}
+SearchAlgorithm GetShortestPath::getSearchAlgorithm(){
+    return this->nowUsingAlgorithm;
 }

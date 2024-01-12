@@ -6,7 +6,7 @@
 #include"./DrawingItems/drawingpoint.h"
 #include<QGraphicsView>
 #include<QGraphicsScene>
-
+#include<QInputDialog>
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
     //初始化顶部选项:加载存档和功能栏目并绑定点击事件
@@ -313,7 +313,31 @@ void MainWindow::tryAddPoint(QGraphicsSceneMouseEvent *event){
     }
     //加建筑
     else{
-
+        //设置弹窗
+        QInputDialog inputDialog(this);
+        inputDialog.setWindowTitle("");
+        inputDialog.setLabelText("请输入建筑名称：");
+        inputDialog.setInputMode(QInputDialog::TextInput);
+        //设置输入长度限制
+        inputDialog.setIntRange(1, 20);
+        if(inputDialog.exec()==QInputDialog::Accepted){
+            //寻找合法id
+            QSet<int> st;
+            auto pointList=*this->maps->at(usingMap)->getPointsList();
+            for(Point* t:pointList)
+                st.insert(t->id);
+            Point *newPoint;
+            for(int i=0;;i++)
+                if(!st.contains(i)){
+                    newPoint=new Point(pos.rx(),pos.ry(),i,false,inputDialog.textValue());
+                    break;
+                }
+            //加到maps
+            this->maps->at(usingMap)->pushPoint(newPoint);
+            //绘制图像
+            addPoint1(*newPoint);
+        }
+        else return;
     }
 }
 

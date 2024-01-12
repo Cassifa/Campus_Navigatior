@@ -26,7 +26,9 @@ public:
     bool getAcachieveAble();
     QVector<Edge*> getShorestPath();
     QVector<QVector<Edge*>> getPaths();
+    //最短距离,起点,终点
     QString getOutpInfo();
+    //最短路走法
     QString getOutpPath();
     QVector<DrawingEdge*> getDrawnEdges();
 

@@ -41,7 +41,7 @@
      <height>1000</height>
     </size>
    </property>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -123,7 +123,7 @@
          <property name="title">
           <string/>
          </property>
-         <widget class="QWidget" name="">
+         <widget class="QWidget" name="layoutWidget">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -170,7 +170,7 @@
               <number>0</number>
              </property>
              <widget class="QWidget" name="pageNav">
-              <widget class="QWidget" name="">
+              <widget class="QWidget" name="layoutWidget">
                <property name="geometry">
                 <rect>
                  <x>0</x>
@@ -790,7 +790,7 @@
               </widget>
              </widget>
              <widget class="QWidget" name="pageModi">
-              <widget class="QWidget" name="">
+              <widget class="QWidget" name="layoutWidget">
                <property name="geometry">
                 <rect>
                  <x>20</x>
@@ -1030,34 +1030,56 @@
        <widget class="QStackedWidget" name="stackedWidget_2">
         <property name="geometry">
          <rect>
-          <x>40</x>
-          <y>30</y>
-          <width>1451</width>
-          <height>141</height>
+          <x>10</x>
+          <y>0</y>
+          <width>1500</width>
+          <height>200</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>170</width>
-          <height>0</height>
+          <width>1500</width>
+          <height>200</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>1500</width>
+          <height>200</height>
          </size>
         </property>
         <property name="currentIndex">
          <number>0</number>
         </property>
         <widget class="QWidget" name="pageNav_2">
-         <widget class="QWidget" name="">
+         <widget class="QWidget" name="layoutWidget">
           <property name="geometry">
            <rect>
-            <x>10</x>
-            <y>10</y>
-            <width>653</width>
+            <x>-80</x>
+            <y>40</y>
+            <width>1663</width>
             <height>115</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="outputInformation">
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <item>
             <layout class="QHBoxLayout" name="pointWant">
+             <item>
+              <spacer name="horizontalSpacer_12">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
              <item>
               <widget class="QLabel" name="label_6">
                <property name="minimumSize">
@@ -1079,7 +1101,7 @@
                 </font>
                </property>
                <property name="text">
-                <string>途径点：</string>
+                <string>途径点：  </string>
                </property>
               </widget>
              </item>
@@ -1087,7 +1109,13 @@
               <widget class="QLabel" name="label_7">
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
+                 <width>1300</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>1300</width>
                  <height>50</height>
                 </size>
                </property>
@@ -1102,10 +1130,39 @@
                </property>
               </widget>
              </item>
+             <item>
+              <spacer name="horizontalSpacer_10">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
             </layout>
            </item>
            <item>
             <layout class="QHBoxLayout" name="shorestPath">
+             <property name="sizeConstraint">
+              <enum>QLayout::SetDefaultConstraint</enum>
+             </property>
+             <item>
+              <spacer name="horizontalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
              <item>
               <widget class="QLabel" name="label_8">
                <property name="minimumSize">
@@ -1127,7 +1184,7 @@
                 </font>
                </property>
                <property name="text">
-                <string>最短路：</string>
+                <string>最短路：  </string>
                </property>
               </widget>
              </item>
@@ -1135,13 +1192,13 @@
               <widget class="QLabel" name="label_9">
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
+                 <width>1300</width>
                  <height>50</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>16777215</width>
+                 <width>1300</width>
                  <height>50</height>
                 </size>
                </property>
@@ -1155,6 +1212,19 @@
                 <string>计算机楼 语林楼</string>
                </property>
               </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_11">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
              </item>
             </layout>
            </item>

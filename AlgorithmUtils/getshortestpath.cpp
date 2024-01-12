@@ -17,17 +17,19 @@ void GetShortestPath::init(CampusMap *map){
     outpInfo="";
     outpInfo="";
     //重置最短路
-    this->minDist=0.0;
+    this->minDist=-1.0;
     this->acachieveAble=false;
     this->shorestPath.resize(0);
     this->paths.resize(0);
 }
 
+//尝试加入待搜索队列
 bool GetShortestPath::tryPushPoint(Point *point){
     if(start==nullptr){
         start=point;
     }
-    else if(end==nullptr) {
+    else if(end==nullptr&&start->id!=point->id) {
+        //不允许选相同的点
         end=point;
     }
     else {
@@ -36,24 +38,31 @@ bool GetShortestPath::tryPushPoint(Point *point){
     return true;
 }
 
-//获取最短路列表
-QVector<Edge *> GetShortestPath::getShorestPath(){
-    return this->shorestPath;
-}
 //获取每次搜索路径
 QVector<QVector<Edge *> > GetShortestPath::getPaths(){
-
+    return this->paths;
 }
-
+//获取每次搜索结果
+QVector<Edge *> GetShortestPath::getShorestPath(){
+    return shorestPath;
+}
 //获取需要显示的计算信息:起点终点 距离 不可达 空
 QString GetShortestPath::getOutpInfo(){
+    //还没设置
     if(this->start==nullptr) return "";
+    QString ans;
+    if(this->minDist>0)ans=QString::number(minDist);
+    ans+=" 起点： "+start->name;
+    if(this->end!=nullptr){
+        ans+=" 终点： "+end->name;
+    }
+    return ans;
 }
 //获取最短路信息/空
 QString GetShortestPath::getOutpPath(){
     if(this->shorestPath.size()==0) return "";
 }
-
+//获取已经绘制的QItems
 QVector<DrawingEdge *> GetShortestPath::getDrawnEdges(){
     return this->drawnEdges;
 }

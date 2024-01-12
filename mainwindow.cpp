@@ -19,35 +19,6 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     serachUtil.init(this->maps->at(0));
 }
 
-//加载地图：删除原有内容并展示边与一类点
-void MainWindow::loadMap(int id){
-    //删除原有点
-    for(int i=0;i<points1.size();i++)
-        cleanPoint(points1[i]->getId());
-    points1.resize(0);
-    for(int i=0;i<points2.size();i++)
-        cleanPoint(points2[i]->getId());
-    points2.resize(0);
-    //删除原有道路
-     for(int i=0;i<roads.size();i++)
-          cleanEdge(roads.at(i));
-    roads.resize(0);
-    //删除搜索边和最短路边
-    cleanAllSearchEdge();
-
-    //绘制道路
-    QVector<Edge*> edges=*this->maps->at(id)->getEdgesList();
-    for(const Edge *now:edges){
-        Edge nowEdge=*now;
-        this->addEdge(nowEdge,true);
-    }
-    //绘制新点
-    QVector<Point*> points=*this->maps->at(id)->getPointsList();
-    for(const Point *now:points){
-        Point nowPoint=*now;
-        if(!nowPoint.isHide)addPoint1(nowPoint);
-    }
-}
 
 //6个绘制点与线行为:
 //将一个点添加到points1并绘制
@@ -58,6 +29,7 @@ void MainWindow::addPoint1(Point &point){
     connect(nowPoint, &DrawingPoint::pointClicked,this,[=](int pointId){
         removePoint(pointId);
         addEdge(pointId);
+        askSerach(pointId);
     });
     this->mapScene->addItem(nowPoint);
 }
@@ -196,15 +168,14 @@ void MainWindow::tryAddPoint(QGraphicsSceneMouseEvent *event){
         else return;
     }
 }
-
-//删边(路) 没id
+//删边(路) 这里的参数没id
 void MainWindow::removeEdge(Edge edge){
     qDebug()<<"删边";
     if(nowView==0||modifyingOptions!=RemovePath)return;
     auto list=this->maps->at(usingMap)->getEdgesList();
     for(int i=0;i<list->size();i++){
         //找出Maps中对应的边
-        if(list->at(i)->x.x==edge.id&&list->at(i)->y.x==edge.y.x&&list->at(i)->dist==edge.dist){
+        if(list->at(i)->x.x==edge.x.x&&list->at(i)->y.x==edge.y.x&&list->at(i)->dist==edge.dist){
             //从roads中去除
             for(int i=0;i<roads.size();i++){
                 if(roads.at(i)==nullptr)continue;
@@ -220,13 +191,12 @@ void MainWindow::removeEdge(Edge edge){
         }
     }
 }
-
 //删点
 void MainWindow::removePoint(int id){
     qDebug()<<"删点";
     if(nowView==0||modifyingOptions!=RemoveNode)return;
 
-    //删除相关边
+    //1删除相关边
     //删除map中记录
     auto edgeList=this->maps->at(usingMap)->getEdgesList();
     for(int i=0;i<edgeList->size();i++)
@@ -241,7 +211,7 @@ void MainWindow::removePoint(int id){
             cleanEdge(roads.at(i));
     }
 
-    //删除点
+    //2删除点
     //删除maps记录
     auto pointList=this->maps->at(usingMap)->getPointsList();
     for(int i=0;i<pointList->size();i++)
@@ -250,10 +220,9 @@ void MainWindow::removePoint(int id){
             pointList->remove(i);
             break;
         }
-    //删除绘制边
+    //删除绘制点
     cleanPoint(id);
 }
-
 //加边
 void MainWindow::addEdge(int id){
     qDebug()<<"加边";
@@ -308,17 +277,18 @@ void MainWindow::addEdge(int id){
 //1个导航视角下元素点击行为:
 //尝试加入搜索队列
 void MainWindow::askSerach(int id){
-    Point *tryPushIntoSearchPoint;
     auto pointList=this->maps->at(usingMap)->getPointsList();
     for(int i=0;i<pointList->size();i++)
+        //找到被点击的点
         if(pointList->at(i)->id==id){
-            tryPushIntoSearchPoint=pointList->at(i);
-            if()
+            if(this->serachUtil.tryPushPoint(pointList->at(i))){
+                this->refreashOutputArea();
+            }
         }
 }
 
 
-//页面路由
+//4个页面路由及刷新信息函数
 //进入导航页面 重新加载地图
 void MainWindow::switchToNav(){//usingMap
     //切换页面
@@ -347,7 +317,43 @@ void MainWindow::switchEdit(){
         if(nowPoint.isHide)addPoint2(nowPoint);
     }
 }
+//刷新底部输出信息
+void MainWindow::refreashOutputArea(){
+    QString beginEndInformation,pathInformation;
+    beginEndInformation=this->serachUtil.getOutpInfo();
+    pathInformation=this->serachUtil.getOutpPath();
+    this->ui->label_7->setText(beginEndInformation);
+    this->ui->label_9->setText(pathInformation);
+}
+//加载地图：删除原有内容并展示边与一类点
+void MainWindow::loadMap(int id){
+    //删除原有点
+    for(int i=0;i<points1.size();i++)
+        cleanPoint(points1[i]->getId());
+    points1.resize(0);
+    for(int i=0;i<points2.size();i++)
+        cleanPoint(points2[i]->getId());
+    points2.resize(0);
+    //删除原有道路
+     for(int i=0;i<roads.size();i++)
+          cleanEdge(roads.at(i));
+    roads.resize(0);
+    //删除搜索边和最短路边
+    cleanAllSearchEdge();
 
+    //绘制道路
+    QVector<Edge*> edges=*this->maps->at(id)->getEdgesList();
+    for(const Edge *now:edges){
+        Edge nowEdge=*now;
+        this->addEdge(nowEdge,true);
+    }
+    //绘制新点
+    QVector<Point*> points=*this->maps->at(id)->getPointsList();
+    for(const Point *now:points){
+        Point nowPoint=*now;
+        if(!nowPoint.isHide)addPoint1(nowPoint);
+    }
+}
 
 //3个初始化页面函数:
 //初始化顶部选项:加载存档和功能栏目并绑定点击事件
@@ -496,6 +502,7 @@ void MainWindow::on_pushButton_clicked(){
 void MainWindow::on_pushButton_2_clicked(){
     qDebug()<<"重置搜索过程";
     serachUtil.init(this->maps->at(usingMap));
+    refreashOutputArea();
 }
 
 //修改视角时的选项

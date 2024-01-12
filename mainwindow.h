@@ -79,6 +79,8 @@ private:
     void choiceMap(int id);
     //加载并渲染一张地图
     void loadMap(int id);
+    //刷新底部输出信息
+    void refreashOutputArea();
 
     //绘制函数:
     //以下只操作绘图容器,删除maps的功能在其它地方实现

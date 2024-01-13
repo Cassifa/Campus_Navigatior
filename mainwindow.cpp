@@ -426,6 +426,21 @@ void MainWindow::loadMap(int id){
         Point nowPoint=*now;
         if(!nowPoint.isHide)addPoint1(nowPoint);
     }
+
+    //尝试加载背景图
+    QString imgPath=this->maps->at(usingMap)->getPath();
+    //替换路径
+    int index = imgPath.indexOf("maps");
+    imgPath.replace(index,4,"img");
+    //替换文件后缀,读取png和jpg的
+    index = imgPath.indexOf("txt");
+    imgPath.replace(index,3,"jpg");
+    if(this->mapBackground->setImg(imgPath))return;
+    index = imgPath.indexOf("jpg");
+    imgPath.replace(index,3,"png");
+    //如果jpg与png都没匹配到则设为空地图
+    if(!this->mapBackground->setImg(imgPath))
+        this->mapBackground->setEmptyImg();
 }
 
 //3个初始化页面函数:
@@ -493,9 +508,9 @@ void MainWindow::initScence(){
     graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     //添加背景图
-    transparentItem=new MapBackground(0.0,0.0,qreal(mapScene->width()), qreal(mapScene->height()),QPixmap(),this);
-    mapScene->addItem(transparentItem);
-    connect(transparentItem, &MapBackground::itemClicked, this,&MainWindow::tryAddPoint);
+    mapBackground=new MapBackground(0.0,0.0,qreal(mapScene->width()), qreal(mapScene->height()),QPixmap(),this);
+    mapScene->addItem(mapBackground);
+    connect(mapBackground, &MapBackground::itemClicked, this,&MainWindow::tryAddPoint);
 
     //清除默认文字
     this->ui->label_7->setText("");

@@ -153,9 +153,14 @@ Point *CampusMap::getPointAt(int x){
 QString CampusMap::getName(){
     return name;
 }
+
+QString CampusMap::getPath(){
+    return pathName;
+}
 void CampusMap::setId(int id){
     this->id=id;
 }
+
 int CampusMap::getId(){
     return id;
 }

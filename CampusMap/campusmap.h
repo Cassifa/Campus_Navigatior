@@ -22,6 +22,7 @@ public:
     Point* getPointAt(int x);
 
     QString getName();
+    QString getPath();
     void setId(int id);
     int getId();
 private:

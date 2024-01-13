@@ -11,6 +11,10 @@ class MapBackground :public QObject, public QGraphicsRectItem{
 public:
     MapBackground(qreal x, qreal y, qreal width, qreal height, const QPixmap &background,QObject *parent1, QGraphicsItem *parent = nullptr);
 
+    //设置背景图
+    bool setImg(QString imgPath);
+    //设置空白背景
+    void setEmptyImg();
 signals:
     //点击事件,触发tryAddPoint(QGraphicsSceneMouseEvent *event)
     void itemClicked(QGraphicsSceneMouseEvent *event);

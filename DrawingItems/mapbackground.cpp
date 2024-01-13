@@ -18,6 +18,24 @@ MapBackground::MapBackground(qreal x, qreal y, qreal width, qreal height,
     setAcceptHoverEvents(true);
 }
 
+bool MapBackground::setImg(QString imgPath){
+    QPixmap newBackground(imgPath);
+    if (!newBackground.isNull()) {
+        backgroundItem->setPixmap(newBackground);
+        backgroundItem->setPos(rect().x(), rect().y());
+        // 调整背景图像大小以适应MapBackground的大小
+        qreal scaleX = rect().width() / newBackground.width();
+        qreal scaleY = rect().height() / newBackground.height();
+        backgroundItem->setScale(qMin(scaleX, scaleY));
+        return true;
+    }
+    return false;
+}
+
+void MapBackground::setEmptyImg(){
+    backgroundItem->setPixmap(QPixmap());
+}
+
 void MapBackground::mousePressEvent(QGraphicsSceneMouseEvent *event){
     emit itemClicked(event);
     qDebug() << "点了背景" << event->scenePos();

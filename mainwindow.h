@@ -38,7 +38,7 @@ private:
     QAction *modiTool;
     QAction *addTool;
     QGraphicsScene *mapScene;
-    MapBackground *transparentItem;
+    MapBackground *mapBackground;
 
     //成员变量:
     //当前地图

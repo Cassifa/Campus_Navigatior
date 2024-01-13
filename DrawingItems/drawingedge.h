@@ -8,8 +8,8 @@
 #include<QObject>
 #include"./CampusMap/edge.h"
 #include<QPropertyAnimation>
-class DrawingEdge :public QGraphicsLineItem{
-//    Q_OBJECT
+class DrawingEdge :public QObject,public QGraphicsLineItem{
+    Q_OBJECT
 public:
     DrawingEdge(const Edge &edge, int penWidth, const QColor &color,
                 bool slowDrawing,QGraphicsItem *parent = nullptr);
@@ -36,8 +36,8 @@ public:
     int getPointYId();
 
 signals:
-    //点击边,触发删除边事件
-    void edgeClicked(Edge edge);
+//    //点击边,触发删除边事件 void removeEdge(Edge edge);
+    void edgeClicked(int startX,int startY,int endX,int endY);
 
 private:
     int pointXId,pointYId;

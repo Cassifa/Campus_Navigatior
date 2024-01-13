@@ -48,22 +48,23 @@ void MainWindow::addPoint2(Point &point){
 void MainWindow::cleanPoint(int id){
     for(int i=0;i<points1.size();i++){
         auto now=points1[i];
-        //跳过已经被删除的点
-        if(now==nullptr)continue;
+        //跳过已经被删除的点--->这里错误，即使是指针也不能在函数体内重新赋值
+//        if(now==nullptr)continue;
         if(now->getId()==id){
             this->mapScene->removeItem(now);
             delete now;
-            now=nullptr;
+//            now=nullptr;
+            points1.remove(i);
             return;
         }
     }
     for(int i=0;i<points2.size();i++){
         auto now=points2[i];
-        if(now==nullptr)continue;
+//        if(now==nullptr)continue;
         if(now->getId()==id){
             this->mapScene->removeItem(now);
             delete now;
-            now=nullptr;
+            points2.remove(i);
             return;
         }
     }
@@ -78,8 +79,7 @@ void MainWindow::cleanAllSearchEdge(){
         this->mapScene->removeItem(now);
         delete now;
     }
-    //重置空间
-    edgeList.resize(0);
+    //init函数会自己重置DrawnEdges大小
 }
 //绘制一条边,可以是roads的也可以是搜索结果,如果是roads会先添加到roads
 DrawingEdge* MainWindow::addEdge(Edge &edge,bool isRoad,int penWidth,QColor color,bool slowDrawing){
@@ -91,6 +91,9 @@ DrawingEdge* MainWindow::addEdge(Edge &edge,bool isRoad,int penWidth,QColor colo
         this->roads.append(nowEdge);
         this->mapScene->addItem(nowEdge);
         nowEdge->setZValue(1);
+        connect(nowEdge, &DrawingEdge::edgeClicked,this,[=](int startX,int startY,int endX,int endY){
+            removeEdge(startX, startY, endX, endY);
+        });
         return nullptr;
     }
     else {
@@ -98,18 +101,20 @@ DrawingEdge* MainWindow::addEdge(Edge &edge,bool isRoad,int penWidth,QColor colo
         nowEdge=new DrawingEdge(edge,penWidth,color,slowDrawing);
         this->mapScene->addItem(nowEdge);
         nowEdge->setZValue(2);
+        connect(nowEdge, &DrawingEdge::edgeClicked,this,[=](int startX,int startY,int endX,int endY){
+            removeEdge(startX, startY, endX, endY);
+        });
         return nowEdge;
     }
 }
 //取消绘制并删除一条road
 void MainWindow::cleanEdge(DrawingEdge *edge){
-    if(edge==nullptr)return;
     for(int i=0;i<this->roads.size();i++){
         auto now=roads.at(i);
         if(now==edge){
+            //移除并释放空间
             this->mapScene->removeItem(now);
             delete now;
-            now=nullptr;
             return;
         }
     }
@@ -170,21 +175,22 @@ void MainWindow::tryAddPoint(QGraphicsSceneMouseEvent *event){
     }
 }
 //删边(路) 这里的参数没id
-void MainWindow::removeEdge(Edge edge){
+void MainWindow::removeEdge(int startX,int startY,int endX,int endY){
     qDebug()<<"删边";
     if(nowView==0||modifyingOptions!=RemovePath)return;
     auto list=this->maps->at(usingMap)->getEdgesList();
     for(int i=0;i<list->size();i++){
         //找出Maps中对应的边
-        if(list->at(i)->x.x==edge.x.x&&list->at(i)->y.x==edge.y.x&&list->at(i)->dist==edge.dist){
+        if(list->at(i)->x.x==startX&&list->at(i)->y.x==endX
+                &&list->at(i)->x.y==startY&&list->at(i)->y.y==endY){
             //从roads中去除
-            for(int i=0;i<roads.size();i++){
-                if(roads.at(i)==nullptr)continue;
-                auto x=list->at(i);auto y=roads.at(i);
+            for(int j=0;j<roads.size();j++){
+                //x:map中存的边 y:roads(Item)中存的线段
+                auto x=list->at(i);auto y=roads.at(j);
                 if((x->dist==y->dist)&&(x->x.x=y->startX)&&(x->y.x==y->endX)){
                     cleanEdge(y);
-                    delete y;
-                    y=nullptr;
+                    roads.remove(j);
+                    break;
                 }
             }
             //从maps中去除
@@ -203,14 +209,20 @@ void MainWindow::removePoint(int id){
     for(int i=0;i<edgeList->size();i++)
         //找到所有相关边并从maps中删除
        if(edgeList->at(i)->x.id==id||edgeList->at(i)->y.id==id){
-            delete edgeList->at(i);
+           delete edgeList->at(i);
            edgeList->remove(i);
        }
     //删除所有渲染边
+    QVector<int> needRemove;
     for(int i=0;i<roads.size();i++){
-        if(roads.at(i)->getPointXId()==id||roads.at(i)->getPointYId()==id)
+        if(roads.at(i)->getPointXId()==id||roads.at(i)->getPointYId()==id){
             cleanEdge(roads.at(i));
+            needRemove.append(i);
+        }
     }
+    for(int i=0;i<needRemove.size();i++)
+        //保证删除的时原来那个位置的
+        roads.remove(needRemove[i]-i);
 
     //2删除点
     //删除maps记录
@@ -278,6 +290,7 @@ void MainWindow::addEdge(int id){
 //1个导航视角下元素点击行为:
 //尝试加入搜索队列
 void MainWindow::askSerach(int id){
+    if(this->nowView==1)return;
     auto pointList=this->maps->at(usingMap)->getPointsList();
     for(int i=0;i<pointList->size();i++)
         //找到被点击的点
@@ -334,12 +347,12 @@ void MainWindow::refreashOutputArea(){
 void MainWindow::callShowPath(){
     auto ai=this->serachUtil;
     //展示搜索过程:中间边都绘制
-    //自动下一步：展示搜索过程的话隔一秒话下一步
+    //不需要展示/要展示且自动下一步：展示搜索过程的话隔一秒话下一步
     if(!serachUtil.getIsNeedShowPath()||serachUtil.getIsAutoNext()){
         if(!serachUtil.getIsNeedShowPath()){
             auto adgeList=this->serachUtil.getShorestPath();
             for(int i=0;i<adgeList.size();i++){
-                DrawingEdge *edge=addEdge(*adgeList.at(i),false,5,QColor(Qt::cyan),false);
+                DrawingEdge *edge=addEdge(*adgeList.at(i),false,5,QColor(Qt::blue),false);
                 this->serachUtil.pushDrawItem(edge);
             }
         }
@@ -390,14 +403,14 @@ void MainWindow::loadMap(int id){
     //删除原有点
     for(int i=0;i<points1.size();i++)
         cleanPoint(points1[i]->getId());
-    points1.resize(0);
+    points1.clear();
     for(int i=0;i<points2.size();i++)
         cleanPoint(points2[i]->getId());
-    points2.resize(0);
+    points2.clear();
     //删除原有道路
      for(int i=0;i<roads.size();i++)
           cleanEdge(roads.at(i));
-    roads.resize(0);
+    roads.clear();
     //删除搜索边和最短路边
     cleanAllSearchEdge();
 
@@ -556,18 +569,23 @@ void MainWindow::on_checkBox_2_stateChanged(int arg1){
 void MainWindow::on_pushButton_clicked(){
     qDebug()<<"要求下一步";
     auto ai=this->serachUtil;
-    //还没搜索或者是自动播放就忽略点击
-    if(!ai.getIsComputed()||ai.getIsAutoNext())return;
+    //还没搜索/自动播放/不需要展示路径 就忽略点击
+    if(!ai.getIsComputed()||ai.getIsAutoNext()||!ai.getIsNeedShowPath())return;
     showOncePath();
 }
+//重置搜索
 void MainWindow::on_pushButton_2_clicked(){
     qDebug()<<"重置搜索过程";
-    serachUtil.init(this->maps->at(usingMap));
     this->nowCallUpTo=0;
+    //清除输出
     refreashOutputArea();
     cleanAllSearchEdge();
+    //重置地图
+    serachUtil.init(this->maps->at(usingMap));
+    //取消选择
     this->ui->checkBox->setChecked(false);
     this->ui->checkBox_2->setChecked(false);
+    this->ui->heap->setChecked(false);
 }
 
 

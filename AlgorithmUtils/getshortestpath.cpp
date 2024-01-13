@@ -28,6 +28,8 @@ void GetShortestPath::init(CampusMap *map){
     this->acachieveAble=false;
     this->shorestPath.resize(0);
     this->paths.resize(0);
+    //重置DrawnItems
+    this->drawnEdges.clear();
     //没计算过
     isComputed=false;
 }
@@ -167,6 +169,10 @@ void GetShortestPath::setMap(CampusMap *map){
 }
 void GetShortestPath::pushDrawItem(DrawingEdge *edge){
     this->drawnEdges.append(edge);
+}
+
+void GetShortestPath::setDrawItemEmpty(){
+    drawnEdges.clear();
 }
 bool GetShortestPath::getIsComputed(){
     return isComputed;

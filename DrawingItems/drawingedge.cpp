@@ -12,18 +12,29 @@ DrawingEdge::DrawingEdge(const Edge &edge, int penWidth, const QColor &color,
         ,lineColor(color),penWidth(penWidth),slowDrawing(slowDrawing){
     // 设置可接受点击
     setFlag(QGraphicsItem::ItemIsSelectable);
+    this->setAcceptedMouseButtons(Qt::LeftButton);
     // 启用鼠标悬停事件
     setAcceptHoverEvents(true);
     // 是否慢慢画
 //    setAnimationEnabled(slowDrawing);
+    setLine(startX,startY,endX,endY);
 }
 
 QRectF DrawingEdge::boundingRect() const{
-    qreal extra =penWidth; // 考虑到线条宽度的一半
-    // 使用QGraphicsLineItem的线条坐标计算边界矩形
-    return QRectF(startX, startY, endX - startX, endY - startY)
-        .normalized()
-        .adjusted(-extra, -extra, extra, extra);
+//    qreal extra =penWidth; // 考虑到线条宽度的一半
+//    // 使用QGraphicsLineItem的线条坐标计算边界矩形
+//    return QRectF(startX, startY, endX - startX, endY - startY)
+//        .normalized()
+//        .adjusted(-extra, -extra, extra, extra);
+    qreal halfPenWidth = penWidth / 2.0;
+    qreal minX = qMin(startX, endX);
+    qreal minY = qMin(startY, endY);
+    qreal maxX = qMax(startX, endX);
+    qreal maxY = qMax(startY, endY);
+
+    QRectF rect = QRectF(minX, minY, maxX - minX, maxY - minY).normalized();
+    rect.adjust(-halfPenWidth, -halfPenWidth, halfPenWidth, halfPenWidth);
+    return rect;
 }
 
 void DrawingEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
@@ -40,13 +51,14 @@ void DrawingEdge::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     Q_UNUSED(event);
     Point a(startX,startY),b(endX,endY);
     Edge temp(a,b);
-//    emit edgeClicked(temp);
-    qDebug() << "Edge Clicked!";
+    edgeClicked(startX, startY, endX, endY);
+    qDebug() << "边 Clicked!";
     event->accept();
 }
 
 void DrawingEdge::hoverEnterEvent(QGraphicsSceneHoverEvent *event){
     // 鼠标悬停时改变透明度
+    this->setPen(QPen(Qt::green));
     setOpacity(0.8);
     event->accept();
 }

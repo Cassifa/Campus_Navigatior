@@ -21,6 +21,7 @@ public:
     void setAutoNext(bool need);
     void setMap(CampusMap *map);
     void pushDrawItem(DrawingEdge *edge);
+    void setDrawItemEmpty();
 
     //获取结果
     bool getIsComputed();

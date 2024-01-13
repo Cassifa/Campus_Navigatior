@@ -25,7 +25,7 @@ public slots:
     //删除点
     void removePoint(int id);
     //删边
-    void removeEdge(Edge edge);
+    void removeEdge(int startX,int startY,int endX,int endY);
     //加边
     void addEdge(int id);
     //加入搜索队列

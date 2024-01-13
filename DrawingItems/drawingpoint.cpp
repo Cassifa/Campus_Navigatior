@@ -18,7 +18,6 @@ DrawingPoint::DrawingPoint(const Point &point,qreal radius,const QColor &color,
     setPos(point.x, point.y);
     // 启用鼠标悬停事件
     setAcceptHoverEvents(true);
-
     //绘制底部文字
     textItem = new QGraphicsTextItem(circleName, this);
     textItem->setFont(QFont("Arial", 10));

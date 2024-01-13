@@ -18,8 +18,13 @@ public:
     //节点名字
     QString name;
     void showInfo();
+
+    //重写比较函数
     bool operator==(const Point &other) const {
         return id == other.id;
+    }
+    bool operator<(const Point &other)const{
+        return id<other.id;
     }
 
 };

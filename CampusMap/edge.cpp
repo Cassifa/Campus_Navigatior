@@ -8,6 +8,11 @@ Edge::Edge(const Point x,const Point y)
     this->dist.setNum(getdist(), 'f', 2);
 }
 
+void Edge::show()
+{
+    qDebug()<<x.name<<y.name<<dist;
+}
+
 qreal Edge::getdist(){
     qreal dist1=qAbs(x.x-y.x);
     qreal dist2=qAbs(x.y-y.y);

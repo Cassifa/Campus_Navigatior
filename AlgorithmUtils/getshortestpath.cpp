@@ -1,7 +1,14 @@
 #include "getshortestpath.h"
+#include"./Algorithms/AStar.cpp"
+#include"./Algorithms/DFS.cpp"
+#include"./Algorithms/Dijkstra.cpp"
+#include"./Algorithms/Floyd.cpp"
+#include"./Algorithms/Gene.cpp"
+#include"./Algorithms/Heap.cpp"
+#include"./Algorithms/SPFA.cpp"
+
 GetShortestPath::GetShortestPath(){
 }
-
 void GetShortestPath::init(CampusMap *map){
     //设置地图
     this->map=map;
@@ -40,9 +47,41 @@ bool GetShortestPath::tryPushPoint(Point *point){
 
 //调用算法执行搜索
 void GetShortestPath::compute(){
-    qDebug()<<"计算了";
     //标记已经计算过了
     isComputed=true;
+    switch (nowUsingAlgorithm){
+    case DFS:{
+        dfs(start,end,map->getEdgesList(),map->getPointsList(),acachieveAble,minDist,paths,shorestPath);
+        break;
+    }
+    case AStar:{
+        aStar(start,end,map->getEdgesList(),map->getPointsList(),acachieveAble,minDist,paths,shorestPath);
+        break;
+    }
+    case Heap:{
+        heap(start,end,map->getEdgesList(),map->getPointsList(),acachieveAble,minDist,paths,shorestPath);
+        break;
+    }
+    case Dijkstra:{
+        dijkstra(start,end,map->getEdgesList(),map->getPointsList(),acachieveAble,minDist,paths,shorestPath);
+        break;
+    }
+    case SPFA:{
+        spfa(start,end,map->getEdgesList(),map->getPointsList(),acachieveAble,minDist,paths,shorestPath);
+        break;
+    }
+    case Gene:{
+        gene(start,end,map->getEdgesList(),map->getPointsList(),acachieveAble,minDist,paths,shorestPath);
+        break;
+    }
+    case Floyd:{
+        floyd(start,end,map->getEdgesList(),map->getPointsList(),acachieveAble,minDist,paths,shorestPath);
+        break;
+    }
+    default:break;
+
+    }
+    qDebug()<<acachieveAble<<minDist<<paths<<shorestPath;
 }
 
 //判断是否可计算,并自动执行搜索
@@ -66,7 +105,7 @@ QString GetShortestPath::getOutpInfo(){
     //还没设置
     if(this->start==nullptr) return "";
     QString ans;
-    if(this->minDist>0)ans=QString::number(minDist);
+    if(this->minDist>0)ans="最短距离："+QString::number(minDist)+" ";
     ans+=" 起点： "+start->name;
     if(this->end!=nullptr){
         ans+=" 终点： "+end->name;
@@ -82,10 +121,12 @@ QString GetShortestPath::getOutpPath(){
     }
     QString path;
     path+=shorestPath.at(0)->x.name;
-    path+="->";
+    if(!shorestPath.at(0)->y.isHide)
+        path+="->";
     for(int i=0;i<shorestPath.size();i++){
         path+=shorestPath.at(i)->y.name;
-        if(i!=shorestPath.size()-1)
+        //不是最后一个且连的不是Hide
+        if((i!=shorestPath.size()-1)&&!shorestPath.at(i)->y.isHide)
             path+="->";
     }
     return path;

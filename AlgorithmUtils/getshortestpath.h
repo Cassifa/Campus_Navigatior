@@ -8,7 +8,7 @@
 #include"../CampusMap/campusmap.h"
 #include"./DrawingItems/drawingedge.h"
 enum SearchAlgorithm{
-    BFS,AStar,Heap,Dijkstra,SPFA,Gene,Floyd,Unchoice
+    DFS,AStar,Heap,Dijkstra,SPFA,Gene,Floyd,Unchoice
 };
 class GetShortestPath{
 public:
@@ -72,8 +72,5 @@ private:
     //已经绘制的边
     QVector<DrawingEdge*> drawnEdges;
 
-
-    Q_PROPERTY(QVector<Edge *> getShorestPath READ getGetShorestPath WRITE setGetShorestPath NOTIFY getShorestPathChanged)
 };
-
 #endif // GETSHORTESTPATH_H

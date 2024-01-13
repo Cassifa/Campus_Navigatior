@@ -361,12 +361,13 @@ void MainWindow::showOncePath(){
     if(nowCallUpTo==this->serachUtil.getPaths().size()){
         auto adgeList=this->serachUtil.getShorestPath();
         for(int i=0;i<adgeList.size();i++){
-            DrawingEdge *edge=addEdge(*adgeList.at(i),false,5,QColor(Qt::cyan),true);
+            DrawingEdge *edge=addEdge(*adgeList.at(i),false,5,QColor(Qt::blue),true);
             this->serachUtil.pushDrawItem(edge);
         }
+        nowCallUpTo++;
     }
     else{
-        auto adgeList=this->serachUtil.getPaths().at(nowCallUpTo);
+        auto adgeList=this->serachUtil.getPaths().at(nowCallUpTo++);
         for(int i=0;i<adgeList.size();i++){
             DrawingEdge *edge=addEdge(*adgeList.at(i),false,5,QColor(Qt::cyan),true);
             this->serachUtil.pushDrawItem(edge);
@@ -564,6 +565,7 @@ void MainWindow::on_pushButton_2_clicked(){
     serachUtil.init(this->maps->at(usingMap));
     this->nowCallUpTo=0;
     refreashOutputArea();
+    cleanAllSearchEdge();
     this->ui->checkBox->setChecked(false);
     this->ui->checkBox_2->setChecked(false);
 }
@@ -599,7 +601,7 @@ void MainWindow::on_saveChange_clicked(){
 
 //改变选择算法
 void MainWindow::on_heap_clicked(){
-    serachUtil.setSearchAlgorithm(SearchAlgorithm::BFS);
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::Heap);
     checkAlgorithmUtilStatus();
 }
 void MainWindow::on_aStar_clicked(){
@@ -611,7 +613,7 @@ void MainWindow::on_dijkstra_clicked(){
     checkAlgorithmUtilStatus();
 }
 void MainWindow::on_bfs_clicked(){
-    serachUtil.setSearchAlgorithm(SearchAlgorithm::BFS);
+    serachUtil.setSearchAlgorithm(SearchAlgorithm::DFS);
     checkAlgorithmUtilStatus();
 }
 void MainWindow::on_spfa_clicked(){

@@ -10,6 +10,8 @@ public:
     Point x,y;
     //距离
     QString dist;
+
+    void show();
 private:
     qreal getdist();
 };

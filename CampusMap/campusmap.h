@@ -10,7 +10,7 @@ public:
     ~CampusMap();
     //添加与保存地图
     static CampusMap* addMap(QString path);
-    static void saveMap(QString path);
+    void saveMap();
 
     //加入边与点
     void pushPoint(Point *point);
@@ -28,6 +28,7 @@ private:
     //地图编号与名称
     int id=0;
     QString name;
+    QString pathName;
     //拥有的所有边与点
     QVector<Point*> *points;
     QVector<Edge*> *edges;

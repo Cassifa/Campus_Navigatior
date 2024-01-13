@@ -36,6 +36,8 @@ CampusMap* CampusMap::addMap(QString path){
         in.skipWhiteSpace();
 
         //读取存档
+        nowMap->pathName=path;
+        qDebug()<<path;
         //存地图名称
         in>>nowMap->name;
         //读取点
@@ -80,11 +82,29 @@ CampusMap* CampusMap::addMap(QString path){
      x y(点位置) 节点编号 名称 是否隐藏(是否是辅助节点)
      -1 -1
      x y 边
-     [end]
+     -1 -1
 */
-void CampusMap::saveMap(QString path){
+void CampusMap::saveMap(){
+    QFile file(this->pathName);
 
-    Q_UNUSED(path);
+    if(file.open(QIODevice::WriteOnly|QIODevice::Text)){
+        //打卡文件并设置编码格式
+        QTextStream out(&file);
+        out.setCodec("UTF-8");
+        //存地图名
+        out<<this->name<<endl;
+        for(int i=0;i<points->size();i++){
+            auto t=points->at(i);
+            out<<t->x<<" "<<t->y<<" "<<t->id<<" "<<(t->isHide?1:0)<<" "<<t->name<<endl;
+        }
+        out<<"-1 -1"<<endl;
+        for(int i=0;i<edges->size();i++){
+            auto t=edges->at(i);
+            out<<t->x.id<<" "<<t->y.id<<endl;
+        }
+        out<<"-1 =1"<<endl;
+        file.close();
+    }
 }
 
 

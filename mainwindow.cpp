@@ -529,6 +529,7 @@ void MainWindow::choiceMap(int id){
     //刷新输出区域
     refreashOutputArea();
     this->nowCallUpTo=0;
+    this->modifyingOptions=NotModifying;
 }
 
 
@@ -592,6 +593,7 @@ void MainWindow::on_removePath_clicked(){
 void MainWindow::on_saveChange_clicked(){
     this->modifyingOptions=SaveChange;
     lastAddPathStartPoint=nullptr;
+    this->maps->at(usingMap)->saveMap();
 }
 
 

@@ -616,7 +616,34 @@ void MainWindow::on_pushButton_2_clicked(){
     //取消选择
     this->ui->checkBox->setChecked(false);
     this->ui->checkBox_2->setChecked(false);
+
+    this->ui->heap->setAutoExclusive(false);
     this->ui->heap->setChecked(false);
+    this->ui->heap->setAutoExclusive(true);
+
+    this->ui->dfs->setAutoExclusive(false);
+    this->ui->dfs->setChecked(false);
+    this->ui->dfs->setAutoExclusive(true);
+
+    this->ui->aStar->setAutoExclusive(false);
+    this->ui->aStar->setChecked(false);
+    this->ui->aStar->setAutoExclusive(true);
+
+    this->ui->dijkstra->setAutoExclusive(false);
+    this->ui->dijkstra->setChecked(false);
+    this->ui->dijkstra->setAutoExclusive(true);
+
+    this->ui->spfa->setAutoExclusive(false);
+    this->ui->spfa->setChecked(false);
+    this->ui->spfa->setAutoExclusive(true);
+
+    this->ui->floyd->setAutoExclusive(false);
+    this->ui->floyd->setChecked(false);
+    this->ui->floyd->setAutoExclusive(true);
+
+    this->ui->gene->setAutoExclusive(false);
+    this->ui->gene->setChecked(false);
+    this->ui->gene->setAutoExclusive(true);
 }
 
 

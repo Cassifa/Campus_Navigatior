@@ -64,11 +64,7 @@ void dijkstra(Point* start,Point* end,
         tableDist[edge->x.id][edge->y.id]=edge->dist.toDouble();
         tableDist[edge->y.id][edge->x.id]=edge->dist.toDouble();
     }
-    for(int i=0;i<pointsList->size();i++){
-        for(int j=0;j<pointsList->size();j++)
-            std::cout<<tableDist[i][j]<<" ";
-        std::cout<<std::endl;
-    }
+
     QVector<Edge*> newVector;
     //执行dijkstra
     pointDist[start->id]=0;

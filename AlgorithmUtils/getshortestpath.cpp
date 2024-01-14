@@ -112,6 +112,7 @@ QString GetShortestPath::getOutpInfo(){
     }
     return ans;
 }
+
 //获取最短路信息/空
 QString GetShortestPath::getOutpPath(){
     //没有最短路说明要么没搜要么没最短路
@@ -120,14 +121,15 @@ QString GetShortestPath::getOutpPath(){
         return " ";
     }
     QString path;
-//    path+=shorestPath.at(0)->x.name;
-//    if(!shorestPath.at(0)->y.isHide)
-//        path+="->";
+    int lastArrived=start->id;
+    path+=start->name;
     for(int i=0;i<shorestPath.size();i++){
-        if(shorestPath.at(i)->x.isHide)continue;
-        path+=shorestPath.at(i)->x.name+"->";
+        Point a=shorestPath.at(i)->x,b=shorestPath.at(i)->y;
+        if(b.id==lastArrived)qSwap(a,b);
+        lastArrived=b.id;
+        if(b.isHide)continue;
+        path+="->"+b.name;
     }
-    path+=shorestPath.at(shorestPath.size()-1)->y.name;
     return path;
 }
 //获取已经绘制的QItems

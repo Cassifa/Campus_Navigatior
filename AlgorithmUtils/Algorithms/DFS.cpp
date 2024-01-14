@@ -5,20 +5,24 @@
 #include<QtCore>
 #include <queue>
 #include<map>
+#include<set>
 #include<QDebug>
+#include<iostream>
 #define PII pair<qreal,int>
 const int N=1e5;
 int d[N],st[N];
 int e[N],ne[N],h[N],idx;
 qreal w[N];
 std::map<int,Edge*> mp;
+std::set<int> set;
 void add(int a,int b,qreal c){
     e[idx]=b,ne[idx]=h[a],h[a]=idx++;
     w[idx-1]=c;
 }
-void dfs(int now,int aim,qreal nowDist,int fa,
+void dfs(int now,int aim,qreal nowDist,
          bool &acachieveAble,qreal &minDist,
          QVector<Edge*> nowPath,QVector<QVector<Edge*>> &paths,QVector<Edge*> &shorestPath){
+    set.insert(now);
     if(now==aim){
         acachieveAble=true;
         paths.append(nowPath);
@@ -30,11 +34,12 @@ void dfs(int now,int aim,qreal nowDist,int fa,
     //所搜所有边
     for(int i=h[now];~i;i=ne[i]){
         int j=e[i];
-        if(j==fa)continue;
+        if(set.count(j))continue;
         nowPath.append(mp[i]);
-        dfs(j,aim,nowDist+w[i],now,acachieveAble,minDist,nowPath,paths,shorestPath);
+        dfs(j,aim,nowDist+w[i],acachieveAble,minDist,nowPath,paths,shorestPath);
         nowPath.removeLast();
     }
+    set.erase(now);
 }
 void dfs(Point* start,Point* end,
          QVector<Edge*>* edgesList,
@@ -53,7 +58,7 @@ void dfs(Point* start,Point* end,
         add(t->y.id,t->x.id,t->dist.toDouble());
     }
     //初始化参数
-    acachieveAble=false;minDist=1e18;
+    acachieveAble=false;minDist=1e9;
     QVector<Edge*> utilPath;
-    dfs(start->id,end->id, 0.0,-1, acachieveAble,minDist, utilPath,paths,shorestPath);
+    dfs(start->id,end->id, 0.0, acachieveAble,minDist, utilPath,paths,shorestPath);
 }

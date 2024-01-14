@@ -379,8 +379,10 @@ void MainWindow::showOncePath(){
     //全部展示过了
     if(nowCallUpTo>this->serachUtil.getPaths().size())return;
     //如果是dfs或者遗传要清除上次搜索路径
-    if(this->serachUtil.getSearchAlgorithm()==DFS)
+    if(this->serachUtil.getSearchAlgorithm()==DFS){
         cleanAllSearchEdge();
+        this->serachUtil.setDrawItemEmpty();
+    }
     //如果已经展示完所有则绘制最短路
     if(nowCallUpTo==this->serachUtil.getPaths().size()){
         auto adgeList=this->serachUtil.getShorestPath();

@@ -81,9 +81,7 @@ void GetShortestPath::compute(){
         break;
     }
     default:break;
-
     }
-    qDebug()<<acachieveAble<<minDist<<paths<<shorestPath;
 }
 
 //判断是否可计算,并自动执行搜索
@@ -119,18 +117,17 @@ QString GetShortestPath::getOutpPath(){
     //没有最短路说明要么没搜要么没最短路
     if(this->shorestPath.size()==0){
         if(isComputed) return "不可达";
-        return "尚未搜索";
+        return " ";
     }
     QString path;
-    path+=shorestPath.at(0)->x.name;
-    if(!shorestPath.at(0)->y.isHide)
-        path+="->";
+//    path+=shorestPath.at(0)->x.name;
+//    if(!shorestPath.at(0)->y.isHide)
+//        path+="->";
     for(int i=0;i<shorestPath.size();i++){
-        path+=shorestPath.at(i)->y.name;
-        //不是最后一个且连的不是Hide
-        if((i!=shorestPath.size()-1)&&!shorestPath.at(i)->y.isHide)
-            path+="->";
+        if(shorestPath.at(i)->x.isHide)continue;
+        path+=shorestPath.at(i)->x.name+"->";
     }
+    path+=shorestPath.at(shorestPath.size()-1)->y.name;
     return path;
 }
 //获取已经绘制的QItems

@@ -102,7 +102,7 @@ void CampusMap::saveMap(){
             auto t=edges->at(i);
             out<<t->x.id<<" "<<t->y.id<<endl;
         }
-        out<<"-1 =1"<<endl;
+        out<<"-1 -1"<<endl;
         file.close();
     }
 }

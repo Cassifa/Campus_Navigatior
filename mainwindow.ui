@@ -323,7 +323,7 @@
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QRadioButton" name="bfs">
+                     <widget class="QRadioButton" name="dfs">
                       <property name="minimumSize">
                        <size>
                         <width>150</width>
@@ -343,7 +343,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>BFS</string>
+                       <string>DFS</string>
                       </property>
                      </widget>
                     </item>

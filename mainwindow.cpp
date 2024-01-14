@@ -52,6 +52,7 @@ void MainWindow::cleanPoint(int id){
 //        if(now==nullptr)continue;
         if(now->getId()==id){
             this->mapScene->removeItem(now);
+            this->mapScene->update();
             delete now;
 //            now=nullptr;
             points1.remove(i);
@@ -63,6 +64,7 @@ void MainWindow::cleanPoint(int id){
 //        if(now==nullptr)continue;
         if(now->getId()==id){
             this->mapScene->removeItem(now);
+            this->mapScene->update();
             delete now;
             points2.remove(i);
             return;
@@ -204,16 +206,20 @@ void MainWindow::removePoint(int id){
     if(nowView==0||modifyingOptions!=RemoveNode)return;
 
     //1删除相关边
-    //删除map中记录
+    //1.1删除map中记录
     auto edgeList=this->maps->at(usingMap)->getEdgesList();
+    QVector<int> needRemove;
     for(int i=0;i<edgeList->size();i++)
         //找到所有相关边并从maps中删除
        if(edgeList->at(i)->x.id==id||edgeList->at(i)->y.id==id){
            delete edgeList->at(i);
-           edgeList->remove(i);
+           needRemove.append(i);
        }
-    //删除所有渲染边
-    QVector<int> needRemove;
+    for(int i=0;i<needRemove.size();i++)
+        //保证删除的时原来那个位置的
+        edgeList->remove(needRemove[i]-i);
+    //1.2删除所有渲染边
+    needRemove.clear();
     for(int i=0;i<roads.size();i++){
         if(roads.at(i)->getPointXId()==id||roads.at(i)->getPointYId()==id){
             cleanEdge(roads.at(i));
@@ -225,7 +231,7 @@ void MainWindow::removePoint(int id){
         roads.remove(needRemove[i]-i);
 
     //2删除点
-    //删除maps记录
+    //2.1删除maps记录
     auto pointList=this->maps->at(usingMap)->getPointsList();
     for(int i=0;i<pointList->size();i++)
         if(pointList->at(i)->id==id){
@@ -233,7 +239,7 @@ void MainWindow::removePoint(int id){
             pointList->remove(i);
             break;
         }
-    //删除绘制点
+    //2.2删除绘制点
     cleanPoint(id);
 }
 //加边
@@ -348,14 +354,16 @@ void MainWindow::callShowPath(){
     auto ai=this->serachUtil;
     //展示搜索过程:中间边都绘制
     //不需要展示/要展示且自动下一步：展示搜索过程的话隔一秒话下一步
-    if(!serachUtil.getIsNeedShowPath()||serachUtil.getIsAutoNext()){
-        if(!serachUtil.getIsNeedShowPath()){
+    if(!serachUtil.getIsNeedShowPath()||serachUtil.getIsAutoNext()||serachUtil.getSearchAlgorithm()==Floyd){
+        //直接展示结果
+        if(!serachUtil.getIsNeedShowPath()||serachUtil.getSearchAlgorithm()==Floyd){
             auto adgeList=this->serachUtil.getShorestPath();
             for(int i=0;i<adgeList.size();i++){
                 DrawingEdge *edge=addEdge(*adgeList.at(i),false,5,QColor(Qt::blue),false);
                 this->serachUtil.pushDrawItem(edge);
             }
         }
+        //自动展示
         else {
              int cnts=serachUtil.getPaths().size()+1;
              while (cnts--) {
@@ -370,6 +378,9 @@ void MainWindow::callShowPath(){
 void MainWindow::showOncePath(){
     //全部展示过了
     if(nowCallUpTo>this->serachUtil.getPaths().size())return;
+    //如果是dfs或者遗传要清除上次搜索路径
+    if(this->serachUtil.getSearchAlgorithm()==DFS)
+        cleanAllSearchEdge();
     //如果已经展示完所有则绘制最短路
     if(nowCallUpTo==this->serachUtil.getPaths().size()){
         auto adgeList=this->serachUtil.getShorestPath();
@@ -550,6 +561,7 @@ void MainWindow::addMap(){
 }
 //切换地图
 void MainWindow::choiceMap(int id){
+    switchToNav();
     usingMap=id;
     //重新加载地图
     this->loadMap(id);
@@ -586,6 +598,8 @@ void MainWindow::on_pushButton_clicked(){
     auto ai=this->serachUtil;
     //还没搜索/自动播放/不需要展示路径 就忽略点击
     if(!ai.getIsComputed()||ai.getIsAutoNext()||!ai.getIsNeedShowPath())return;
+    //Floyd没有过程
+    if(serachUtil.getSearchAlgorithm()==Floyd)return;
     showOncePath();
 }
 //重置搜索
@@ -645,7 +659,7 @@ void MainWindow::on_dijkstra_clicked(){
     serachUtil.setSearchAlgorithm(SearchAlgorithm::Dijkstra);
     checkAlgorithmUtilStatus();
 }
-void MainWindow::on_bfs_clicked(){
+void MainWindow::on_dfs_clicked(){
     serachUtil.setSearchAlgorithm(SearchAlgorithm::DFS);
     checkAlgorithmUtilStatus();
 }
@@ -670,3 +684,8 @@ MainWindow::~MainWindow(){
     for(int i=0;i<points2.size();i++)
         delete points2[i];
 }
+
+void MainWindow::on_bfs_clicked(){
+
+}
+

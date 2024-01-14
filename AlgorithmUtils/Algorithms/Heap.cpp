@@ -1,34 +1,19 @@
+#pragma once
 #include "../../CampusMap/campusmap.h"
 #include "../../CampusMap/edge.h"
 #include "../../CampusMap/point.h"
 #include<QtCore>
 #include <queue>
 #include<map>
+#include<QDebug>
 #define PII pair<qreal,int>
-const int N=1e5;
-int d[N],st[N];
-int e[N],ne[N],h[N],idx;
-qreal w[N];
-std::map<int,Edge*> mp;
-void add(int a,int b,qreal c){
-    e[idx]=b,ne[idx]=h[a],h[a]=idx++;
-    w[idx-1]=c;
-}
-bool dfs(int now,int aim,int fa,qreal nowDist,qreal finalDist,QVector<Edge*> &shorestPath){
-    //搜到目标且距离最小
-    if(now==aim&&(abs(nowDist-finalDist)<0.1*finalDist))return true;
-    //所搜所有边
-    for(int i=h[now];~i;i=ne[i]){
-        int j=e[i];
-        if(j==fa)continue;
-        if(nowDist+w[i]>finalDist*1.05)continue;
-        shorestPath.append(mp[i]);
-        if(dfs(j,aim,now,nowDist+w[i],finalDist,shorestPath))
-            return true;
-        shorestPath.pop_back();
-    }
-    return false;
-}
+#define N 100000
+extern int d[N],st[N];
+extern int e[N],ne[N],h[N],idx;
+extern qreal w[N];
+extern  std::map<int,Edge*> mp;
+extern void add(int a,int b,qreal c);
+extern bool dfs(int now,int aim,int fa,qreal nowDist,qreal finalDist,QVector<Edge*> &shorestPath);
 void heap(Point* start,Point* end,
          QVector<Edge*>* edgesList,
          QVector<Point*>* pointsList,
@@ -79,6 +64,4 @@ void heap(Point* start,Point* end,
     else minDist=d[end->id];
     //dfs找路径
     dfs(start->id,end->id,-1,0.0,minDist,shorestPath);
-    for(int i=0;i<shorestPath.size();i++)
-            shorestPath.at(i)->show();
 }

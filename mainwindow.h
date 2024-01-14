@@ -148,5 +148,6 @@ private slots:
 
     void on_saveChange_clicked();
 
+    void on_dfs_clicked();
 };
 #endif // MAINWINDOW_H

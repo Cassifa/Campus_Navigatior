@@ -52,27 +52,26 @@ void MainWindow::cleanPoint(int id){
     for(int i=0;i<points1.size();i++){
         auto now=points1[i];
         //跳过已经被删除的点--->这里错误，即使是指针也不能在函数体内重新赋值
-//        if(now==nullptr)continue;
         if(now->getId()==id){
             this->mapScene->removeItem(now);
             this->mapScene->update();
             delete now;
-//            now=nullptr;
-            points1.remove(i);
+            now=nullptr;
             return;
         }
     }
+    points1.clear();
     for(int i=0;i<points2.size();i++){
         auto now=points2[i];
-//        if(now==nullptr)continue;
         if(now->getId()==id){
             this->mapScene->removeItem(now);
             this->mapScene->update();
             delete now;
-            points2.remove(i);
+            now=nullptr;
             return;
         }
     }
+    points2.clear();
 }
 
 //取消绘制所有搜索边
@@ -103,7 +102,7 @@ DrawingEdge* MainWindow::addEdge(Edge &edge,bool isRoad,int penWidth,QColor colo
     }
     else {
         //创建搜索边
-        nowEdge=new DrawingEdge(edge,penWidth,color,slowDrawing);
+        nowEdge=new DrawingEdge(edge,penWidth+1,color,slowDrawing);
         this->mapScene->addItem(nowEdge);
         nowEdge->setZValue(2);
         connect(nowEdge, &DrawingEdge::edgeClicked,this,[=](int startX,int startY,int endX,int endY){
@@ -633,8 +632,6 @@ void MainWindow::addMap(){
 }
 //保存用户上传的新地图
 void MainWindow::saveNewMap(QString mapName,QString mapPic){
-    qDebug()<<"保存了新地图";
-    qDebug()<<mapName<<mapPic;
     QString path=QCoreApplication::applicationDirPath()+"/src/";
     path="D:/0projects/CampusNavigatior/src/";
     QDir dir(path+"maps/");
@@ -659,22 +656,17 @@ void MainWindow::saveNewMap(QString mapName,QString mapPic){
             QFile mapFile(mapFileName);
             if (mapFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
                 QTextStream out(&mapFile);
+                out.setCodec("UTF-8");
                 out << mapName << "\n-1 -1\n-1 -1\n";
                 mapFile.close();
-                qDebug() << "地图文件已创建：" << mapFileName;
             } else {
-                qDebug() << "无法打开地图文件：" << mapFileName;
+                qDebug() << "创建地图失败,终止新建：" << mapFileName;
                 return;
             }
             // 复制图片文件
             if (!mapPic.isEmpty()) {
-                if (QFile::copy(mapPic,imgFileName)) {
-                    qDebug() << "图片文件已复制：" <<imgFileName;
-                } else {
-                    qDebug() << "无法复制图片文件：" <<imgFileName;
-                }
+                QFile::copy(mapPic,imgFileName);
             }
-
             // 处理完成，可以退出循环
             break;
         }

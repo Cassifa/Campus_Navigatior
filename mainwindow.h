@@ -109,7 +109,7 @@ private:
 
     //绘制一条边,可以是roads的也可以是搜索结果,如果是roads会先添加到roads 如果不是返回Item指针
     DrawingEdge* addEdge(Edge &edge,bool isRoad,//非road会窜入下面属性，最短路最要求不缓慢展示
-                         int penWidth=4,QColor color=QColor(Qt::black),bool slowDrawing=true);
+                         int penWidth=7,QColor color=QColor(Qt::black),bool slowDrawing=true);
     //取消绘制并删除road
     void cleanEdge(DrawingEdge *edge);
     //取消本次搜索的所有结果

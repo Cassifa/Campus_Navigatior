@@ -5,7 +5,8 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QFont>
-class DrawingPoint:public QGraphicsObject{
+#include<QGraphicsItem>
+class DrawingPoint:public QGraphicsObject  {
     Q_OBJECT
 public:
     //根据一个point来构造

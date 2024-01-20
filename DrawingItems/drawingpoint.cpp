@@ -8,7 +8,7 @@
 //构造函数
 DrawingPoint::DrawingPoint(const Point &point,qreal radius,const QColor &color,
                            QGraphicsItem *parent)
-    :QGraphicsObject(parent), pointId(point.id), circleRadius(radius), circleColor(color){
+    :QGraphicsObject  (parent), pointId(point.id), circleRadius(radius), circleColor(color){
     //设置是否为路口节点
     if(point.isHide)
         this->circleName=QString::number(point.id);
@@ -39,6 +39,7 @@ void DrawingPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     Q_UNUSED(widget);
     // 设置画刷颜色并绘制圆
     painter->setPen(QPen(Qt::black, penWidth));
+    painter->setPen(Qt::NoPen);
     painter->setBrush(circleColor);
     painter->drawEllipse(QRectF(-circleRadius, -circleRadius, circleRadius * 2, circleRadius * 2));
 
@@ -51,19 +52,25 @@ void DrawingPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 //鼠标点击悬浮事件
 void DrawingPoint::mousePressEvent(QGraphicsSceneMouseEvent *event){
     // 处理鼠标点击事件
-    qDebug() << "圆被点击: " << circleName;
+    qDebug()<<this->getId() << "圆被点击: " << circleName;
     event->accept();
     emit pointClicked(this->pointId);
 }
 
 void DrawingPoint::hoverEnterEvent(QGraphicsSceneHoverEvent *event){
-    setOpacity(0.8);
+    setScale(1.5);
+    this->textItem->setScale(1.5);
+    // 设置为红色
+//    QGraphicsItem::setBrush(Qt::red);
     QGraphicsItem::hoverEnterEvent(event);
     event->accept();
 }
 
 void DrawingPoint::hoverLeaveEvent(QGraphicsSceneHoverEvent *event){
-    setOpacity(1.0);
+    // 恢复比例为原始大小
+    setScale(1.0);
+    this->textItem->setScale(1.0);
+    // 恢复颜色为原始颜色
     QGraphicsItem::hoverLeaveEvent(event);
     event->accept();
 }

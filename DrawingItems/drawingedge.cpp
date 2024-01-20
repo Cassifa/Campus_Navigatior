@@ -26,7 +26,7 @@ QRectF DrawingEdge::boundingRect() const{
 //    return QRectF(startX, startY, endX - startX, endY - startY)
 //        .normalized()
 //        .adjusted(-extra, -extra, extra, extra);
-    qreal halfPenWidth = penWidth / 2.0;
+    qreal halfPenWidth = penWidth / 2.0+10;
     qreal minX = qMin(startX, endX);
     qreal minY = qMin(startY, endY);
     qreal maxX = qMax(startX, endX);
@@ -42,6 +42,7 @@ void DrawingEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     Q_UNUSED(widget);
     //绘制线段
     QPen pen(this->lineColor, penWidth, Qt::SolidLine);
+//    setOpacity(0.8);
     painter->setPen(pen);
     painter->drawLine(QLineF(startX, startY, endX, endY));
 }
@@ -52,20 +53,22 @@ void DrawingEdge::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     Point a(startX,startY),b(endX,endY);
     Edge temp(a,b);
     edgeClicked(startX, startY, endX, endY);
-    qDebug() << "边 Clicked!";
+//    qDebug() << "边 Clicked!";
     event->accept();
 }
 
 void DrawingEdge::hoverEnterEvent(QGraphicsSceneHoverEvent *event){
     // 鼠标悬停时改变透明度
-    this->setPen(QPen(Qt::green));
-    setOpacity(0.8);
+//    this->setPen(QPen(Qt::green));
+//    setScale(1.5);
+//    setOpacity(1.0);
     event->accept();
 }
 
 void DrawingEdge::hoverLeaveEvent(QGraphicsSceneHoverEvent *event){
     // 鼠标离开时恢复透明度
-    setOpacity(1.0);
+//    setOpacity(0.8);
+//    setScale(1.0);
     event->accept();
 
 }

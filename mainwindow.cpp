@@ -7,13 +7,16 @@
 #include<QGraphicsView>
 #include<QGraphicsScene>
 #include<QInputDialog>
+#include<QFileDialog>
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
+    this->setWindowTitle("CampusNavigator");
+//    this->setWindowIcon();
     //初始化顶部选项:加载存档和功能栏目并绑定点击事件
     initMenu();
     //加载校徽
     drawBadge();
-    //初始化mapScene
+    //初始化mapScene,加载0号地图并尝试展示背景
     initScence();
     //初始化算法类
     serachUtil.init(this->maps->at(0));
@@ -478,6 +481,10 @@ void MainWindow::initMenu(){
         this->nowView=1;
         switchEdit();
     });
+    //点击添加地图
+    connect(addTool,&QAction::triggered,this,[&](){
+        this->addMap();
+    });
 
     //加载所有存档
     this->maps=new QVector<CampusMap*>;
@@ -499,7 +506,7 @@ void MainWindow::initMenu(){
     //将存档添加到菜单
     for(int i=0;i<maps->size();i++){
         //加到菜单
-        QAction *nowAddingMapAction=new QAction(maps->at(i)->getName(),this);
+        QAction *nowAddingMapAction=new QAction(maps->at(i)->getName(),navtionTool);
         ui->menu->addAction(nowAddingMapAction);
         //绑定点击事件
         connect(nowAddingMapAction,&QAction::triggered,this,[=](){
@@ -559,7 +566,127 @@ void MainWindow::drawBadge(){
 //2个切换与添加地图函数:
 //添加一张地图
 void MainWindow::addMap(){
-    qDebug()<<"添加地图";
+    //设置弹窗
+    QDialog *addMapDialog=new QDialog(this);
+    addMapDialog->resize(400,300);
+    addMapDialog->setWindowTitle("Add Map");
+
+    //用户输入的参数
+    mapPic="";
+    mapName="";
+
+    //输入名字与上传地图
+    QLabel *mapNameLabel=new QLabel("Please Input Your Map Name:",addMapDialog);
+    QLineEdit *inputMapName=new QLineEdit(mapName,addMapDialog);
+    QPushButton *choiceMapBtn=new QPushButton("Choice MapBack ground",addMapDialog);
+
+    //确认/关闭对话框
+    QPushButton *ok=new QPushButton("ok",addMapDialog);
+    QPushButton *cancel=new QPushButton("cancel",addMapDialog);
+
+    //设置布局与属性
+    // 水平布局，包含mapNameLabel和inputMapName
+    QHBoxLayout *nameLayout = new QHBoxLayout;
+    nameLayout->addWidget(mapNameLabel);
+    nameLayout->addWidget(inputMapName);
+    // 垂直布局，包含水平布局和choiceMapBtn
+    QVBoxLayout *mainLayout = new QVBoxLayout(addMapDialog);
+    mainLayout->addLayout(nameLayout);
+    mainLayout->addWidget(choiceMapBtn, 0, Qt::AlignHCenter);
+    //按钮布局
+    QHBoxLayout *buttonLayout = new QHBoxLayout;
+    buttonLayout->addWidget(ok);
+    buttonLayout->addWidget(cancel);
+    // 确认/关闭对话框按钮布局;// 设置按钮布局的边距，以便留有一些空白
+    buttonLayout->setContentsMargins(0, 0, 10, 10);
+    // 将按钮布局添加到主布局，并设置对齐方式
+    mainLayout->addLayout(buttonLayout,Qt::AlignRight | Qt::AlignBottom);
+    // 设置主布局
+    addMapDialog->setLayout(mainLayout);
+
+
+    //绑定对话框
+    connect(ok,&QPushButton::clicked,this,[=](){
+        mapName=inputMapName->text();
+        if(mapName=="")return;
+        saveNewMap(mapName,mapPic);
+        addMapDialog->close();
+    });
+    connect(cancel,&QPushButton::clicked,this,[=](){
+        addMapDialog->close();
+    });
+    connect(choiceMapBtn,&QPushButton::clicked,this,[=](){
+        // 打开文件选择对话框获取文件路径
+        QFileDialog fileDialog(addMapDialog);
+        fileDialog.setWindowTitle("选择图片");
+        fileDialog.setNameFilter("Images (*.png *.jpg)");
+        fileDialog.setFileMode(QFileDialog::ExistingFile);
+        if (fileDialog.exec() == QDialog::Accepted) {
+            QStringList selectedFiles = fileDialog.selectedFiles();
+            if (!selectedFiles.isEmpty())
+                mapPic= selectedFiles.first();
+        }
+    });
+
+    //打开上上传栏目
+    addMapDialog->open();
+}
+//保存用户上传的新地图
+void MainWindow::saveNewMap(QString mapName,QString mapPic){
+    qDebug()<<"保存了新地图";
+    qDebug()<<mapName<<mapPic;
+    QString path=QCoreApplication::applicationDirPath()+"/src/";
+    path="D:/0projects/CampusNavigatior/src/";
+    QDir dir(path+"maps/");
+    if(!dir.exists()) dir.mkdir(path+"maps/");
+    QStringList list=dir.entryList();
+    //找到最小未分配编号
+    QSet<int> st;
+    for(int i=0;i<list.count();i++){
+        if(list[i]=="."||list[i]=="..")continue;
+        QString now=list.at(i);
+        int t=now.leftRef(now.indexOf('.')).toInt();
+        st.insert(t);
+    }
+    //写入新文件
+    int newId;
+    for(int i=0;;i++){
+        if(st.find(i)==st.end()){
+            newId=i;
+            QString mapFileName=path+"maps/"+QString::number(i)+".txt";
+            QString imgFileName=path+"img/"+QString::number(i)+".jpg";
+            //处理新地图
+            QFile mapFile(mapFileName);
+            if (mapFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                QTextStream out(&mapFile);
+                out << mapName << "\n-1 -1\n-1 -1\n";
+                mapFile.close();
+                qDebug() << "地图文件已创建：" << mapFileName;
+            } else {
+                qDebug() << "无法打开地图文件：" << mapFileName;
+                return;
+            }
+            // 复制图片文件
+            if (!mapPic.isEmpty()) {
+                if (QFile::copy(mapPic,imgFileName)) {
+                    qDebug() << "图片文件已复制：" <<imgFileName;
+                } else {
+                    qDebug() << "无法复制图片文件：" <<imgFileName;
+                }
+            }
+
+            // 处理完成，可以退出循环
+            break;
+        }
+    }
+    //重新加载一次导航栏
+    delete navtionTool;
+    delete modiTool;
+    delete addTool;
+    delete maps;
+    initMenu();
+    choiceMap(newId);
+    switchEdit();
 }
 //切换地图
 void MainWindow::choiceMap(int id){

@@ -63,6 +63,8 @@ private:
     int nowView=0;
     //当前展示执行过程到了哪一步
     int nowCallUpTo=0;
+    //用户添加地图
+    QString mapPic,mapName;
 
     //初始化与页面切换函数:
     //初始化导航栏
@@ -77,6 +79,8 @@ private:
     void switchEdit();
     //用户添加地图
     void addMap();
+    //保存用户上传的新地图
+    void saveNewMap(QString mapName,QString mapPic);
     //切换地图
     void choiceMap(int id);
 

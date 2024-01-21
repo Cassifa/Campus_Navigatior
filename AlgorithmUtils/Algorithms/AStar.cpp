@@ -1,6 +1,7 @@
 #include "../../CampusMap/campusmap.h"
 #include "../../CampusMap/edge.h"
 #include "../../CampusMap/point.h"
+//#include "../STLUtils/myQueue.cpp"
 #include<QtCore>
 #include <queue>
 #include<set>
@@ -51,7 +52,7 @@ void aStar(Point* start,Point* end,
     std::priority_queue<std::pair<std::pair<qreal,qreal>,int>,
             std::vector<std::pair<std::pair<qreal,qreal>,int>>,
             std::greater<std::pair<std::pair<qreal,qreal>,int>>> q;
-
+    //myQueue<std::pair<std::pair<qreal,qreal>,int>>> q;
     //执行AStar
     q.push({{0.0,0.0},start->id});
     d[start->id]=0;

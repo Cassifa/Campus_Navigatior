@@ -2,6 +2,7 @@
 #include "../../CampusMap/campusmap.h"
 #include "../../CampusMap/edge.h"
 #include "../../CampusMap/point.h"
+#include "../STLUtils/myQueue.cpp"
 #include<QtCore>
 #include <queue>
 #include<map>
@@ -39,6 +40,7 @@ void heap(Point* start,Point* end,
 
     d[start->id]=0;
     std::priority_queue<std::PII, std::vector<std::PII>, std::greater<std::PII>> heap;
+//    myQueue<std::PII> heap;
     QVector<Edge*> newVector;
     heap.push({0,start->id});
     while(heap.size()){

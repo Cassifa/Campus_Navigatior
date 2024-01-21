@@ -16,6 +16,8 @@ SOURCES += \
     AlgorithmUtils/Algorithms/Gene.cpp \
     AlgorithmUtils/Algorithms/Heap.cpp \
     AlgorithmUtils/Algorithms/SPFA.cpp \
+    AlgorithmUtils/STLUtils/myQueue.cpp \
+    AlgorithmUtils/STLUtils/myVector.cpp \
     AlgorithmUtils/getshortestpath.cpp \
     CampusMap/campusmap.cpp \
     CampusMap/edge.cpp \
@@ -47,3 +49,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     RunningResources.qrc
+
+DISTFILES +=

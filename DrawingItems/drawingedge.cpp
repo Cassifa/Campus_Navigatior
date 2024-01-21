@@ -52,7 +52,7 @@ void DrawingEdge::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     Q_UNUSED(event);
     Point a(startX,startY),b(endX,endY);
     Edge temp(a,b);
-    edgeClicked(startX, startY, endX, endY);
+    emit edgeClicked(startX, startY, endX, endY);
 //    qDebug() << "边 Clicked!";
     event->accept();
 }

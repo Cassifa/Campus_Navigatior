@@ -54,7 +54,7 @@ private:
     bool needShowPath;
     //是否自动下一步
     bool autoNext;
-    //初始化后是否计算过随锻炼
+    //初始化后是否计算过最短路
     bool isComputed;
 
     //使用的地图

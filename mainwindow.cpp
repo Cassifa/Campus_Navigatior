@@ -11,7 +11,7 @@
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
     this->setWindowTitle("CampusNavigator");
-//    this->setWindowIcon();
+    this->setWindowIcon(QIcon(":/Nav"));
     //初始化顶部选项:加载存档和功能栏目并绑定点击事件
     initMenu();
     //加载校徽
@@ -128,7 +128,7 @@ void MainWindow::cleanEdge(DrawingEdge *edge){
 //4个编辑视角下的元素点击行为:
 //加点
 void MainWindow::tryAddPoint(QGraphicsSceneMouseEvent *event){
-    qDebug()<<"加点";
+//    qDebug()<<"加点";
     if(nowView==0||(modifyingOptions!=AddNode&&modifyingOptions!=AddBuilding))return;
     QPointF  pos=event->pos();
     //加节点
@@ -180,7 +180,7 @@ void MainWindow::tryAddPoint(QGraphicsSceneMouseEvent *event){
 }
 //删边(路) 这里的参数没id
 void MainWindow::removeEdge(int startX,int startY,int endX,int endY){
-    qDebug()<<"删边";
+//    qDebug()<<"删边";
     if(nowView==0||modifyingOptions!=RemovePath)return;
     auto list=this->maps->at(usingMap)->getEdgesList();
     for(int i=0;i<list->size();i++){
@@ -204,7 +204,7 @@ void MainWindow::removeEdge(int startX,int startY,int endX,int endY){
 }
 //删点
 void MainWindow::removePoint(int id){
-    qDebug()<<"删点";
+//    qDebug()<<"删点";
     if(nowView==0||modifyingOptions!=RemoveNode)return;
 
     //1删除相关边
@@ -246,7 +246,7 @@ void MainWindow::removePoint(int id){
 }
 //加边
 void MainWindow::addEdge(int id){
-    qDebug()<<"加边";
+//    qDebug()<<"加边";
     if(nowView==0||modifyingOptions!=AddPath)return;
     //第一个选的点
     if(lastAddPathStartPoint==nullptr){
@@ -332,7 +332,7 @@ void MainWindow::switchEdit(){
     this->modifyingOptions=NotModifying;
     //删除导航边
      cleanAllSearchEdge();
-    //删除导航信息
+    //重置搜索工具
      serachUtil.init(this->maps->at(usingMap));
      this->nowCallUpTo=0;
      refreashOutputArea();
@@ -361,7 +361,7 @@ void MainWindow::callShowPath(){
         if(!serachUtil.getIsNeedShowPath()||serachUtil.getSearchAlgorithm()==Floyd){
             auto adgeList=this->serachUtil.getShorestPath();
             for(int i=0;i<adgeList.size();i++){
-                DrawingEdge *edge=addEdge(*adgeList.at(i),false,5,QColor(Qt::blue),false);
+                DrawingEdge *edge=addEdge(*adgeList.at(i),false,5,QColor(Qt::green),false);
                 this->serachUtil.pushDrawItem(edge);
             }
         }
@@ -389,7 +389,7 @@ void MainWindow::showOncePath(){
     if(nowCallUpTo==this->serachUtil.getPaths().size()){
         auto adgeList=this->serachUtil.getShorestPath();
         for(int i=0;i<adgeList.size();i++){
-            DrawingEdge *edge=addEdge(*adgeList.at(i),false,5,QColor(Qt::blue),true);
+            DrawingEdge *edge=addEdge(*adgeList.at(i),false,5,QColor(Qt::green),true);
             this->serachUtil.pushDrawItem(edge);
         }
         nowCallUpTo++;
@@ -577,11 +577,11 @@ void MainWindow::addMap(){
     //输入名字与上传地图
     QLabel *mapNameLabel=new QLabel("Please Input Your Map Name:",addMapDialog);
     QLineEdit *inputMapName=new QLineEdit(mapName,addMapDialog);
-    QPushButton *choiceMapBtn=new QPushButton("Choice MapBack ground",addMapDialog);
+    QPushButton *choiceMapBtn=new QPushButton("Choice Map Background(optional)",addMapDialog);
 
     //确认/关闭对话框
-    QPushButton *ok=new QPushButton("ok",addMapDialog);
-    QPushButton *cancel=new QPushButton("cancel",addMapDialog);
+    QPushButton *ok=new QPushButton("OK",addMapDialog);
+    QPushButton *cancel=new QPushButton("CANCEL",addMapDialog);
 
     //设置布局与属性
     // 水平布局，包含mapNameLabel和inputMapName
@@ -682,10 +682,9 @@ void MainWindow::saveNewMap(QString mapName,QString mapPic){
 }
 //切换地图
 void MainWindow::choiceMap(int id){
-    switchToNav();
     usingMap=id;
+    switchToNav();
     //重新加载地图
-    this->loadMap(id);
     //重新构建算法类
     serachUtil.init(this->maps->at(usingMap));
     //刷新输出区域
@@ -715,7 +714,7 @@ void MainWindow::on_checkBox_2_stateChanged(int arg1){
     else serachUtil.setAutoNext(true);
 }
 void MainWindow::on_pushButton_clicked(){
-    qDebug()<<"要求下一步";
+//    qDebug()<<"要求下一步";
     auto ai=this->serachUtil;
     //还没搜索/自动播放/不需要展示路径 就忽略点击
     if(!ai.getIsComputed()||ai.getIsAutoNext()||!ai.getIsNeedShowPath())return;
@@ -725,10 +724,12 @@ void MainWindow::on_pushButton_clicked(){
 }
 //重置搜索
 void MainWindow::on_pushButton_2_clicked(){
-    qDebug()<<"重置搜索过程";
+//    qDebug()<<"重置搜索过程";
     this->nowCallUpTo=0;
     //清除输出
-    refreashOutputArea();
+//    refreashOutputArea();
+    this->ui->label_7->setText("");
+    this->ui->label_9->setText("");
     cleanAllSearchEdge();
     //重置地图
     serachUtil.init(this->maps->at(usingMap));

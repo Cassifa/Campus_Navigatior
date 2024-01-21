@@ -37,7 +37,7 @@ CampusMap* CampusMap::addMap(QString path){
 
         //读取存档
         nowMap->pathName=path;
-        qDebug()<<path;
+//        qDebug()<<path;
         //存地图名称
         in>>nowMap->name;
         //读取点

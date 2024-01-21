@@ -38,6 +38,6 @@ void MapBackground::setEmptyImg(){
 
 void MapBackground::mousePressEvent(QGraphicsSceneMouseEvent *event){
     emit itemClicked(event);
-    qDebug() << "点了背景" << event->scenePos();
+//    qDebug() << "点了背景" << event->scenePos();
     QGraphicsItem::mousePressEvent(event);
 }

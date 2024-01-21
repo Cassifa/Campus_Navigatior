@@ -52,14 +52,14 @@ void DrawingPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 //鼠标点击悬浮事件
 void DrawingPoint::mousePressEvent(QGraphicsSceneMouseEvent *event){
     // 处理鼠标点击事件
-    qDebug()<<this->getId() << "圆被点击: " << circleName;
+//    qDebug()<<this->getId() << "圆被点击: " << circleName;
     event->accept();
     emit pointClicked(this->pointId);
 }
 
 void DrawingPoint::hoverEnterEvent(QGraphicsSceneHoverEvent *event){
-    setScale(1.5);
-    this->textItem->setScale(1.5);
+    setScale(1.2);
+    this->textItem->setScale(1.2);
     // 设置为红色
 //    QGraphicsItem::setBrush(Qt::red);
     QGraphicsItem::hoverEnterEvent(event);
